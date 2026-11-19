@@ -1,1074 +1,1558 @@
 <!DOCTYPE html>
 <html lang="ku" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لێکۆڵەر - گەشتە مێژووییەکەت</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>یاری لێکۆڵەر - دۆسیەی معروف الرصافي</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&display=swap');
 
-        * {
-            box-sizing: border-box;
-            user-select: none;
-        }
+  :root {
+    --bg-dark: #14100c;
+    --paper: #f3e6ce;
+    --paper-dark: #dec9a4;
+    --ink: #2b1d12;
+    --gold: #c8963e;
+    --gold-light: #f0c975;
+    --crimson: #8b2626;
+    --green: #2c6e49;
+    --blue: #235789;
+  }
 
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Noto Naskh Arabic', Tahoma, sans-serif;
-            background-color: #120e0a;
-            color: #f3e5ab;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow-x: hidden;
-        }
+  * {
+    box-sizing: border-box;
+    font-family: 'Noto Naskh Arabic', Tahoma, sans-serif;
+    user-select: none;
+  }
 
-        /* پاشبنەمای مێژوویی */
-        .game-wrapper {
-            width: 100%;
-            max-width: 850px;
-            min-height: 92vh;
-            background: radial-gradient(circle at center, rgba(44, 30, 20, 0.88), rgba(15, 10, 6, 0.96)),
-                        url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
-            border: 3px solid #8c6239;
-            border-radius: 14px;
-            box-shadow: 0 0 35px rgba(0, 0, 0, 0.9), inset 0 0 40px rgba(0,0,0,0.8);
-            position: relative;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-dark);
+    color: var(--paper);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+    transition: background 0.6s ease;
+  }
 
-        /* شریتی سەرەوە (خاڵەکان و جانتا) */
-        .top-hud {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(20, 14, 9, 0.85);
-            border: 1px solid #a67c52;
-            padding: 10px 18px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            z-index: 10;
-        }
+  #game-container {
+    width: 100%;
+    max-width: 900px;
+    min-height: 640px;
+    background: radial-gradient(circle at center, #2c2117 0%, #120d09 100%);
+    border: 3px solid var(--gold);
+    border-radius: 14px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.9), inset 0 0 60px rgba(0,0,0,0.7);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.6s ease;
+  }
 
-        .score-badge {
-            font-size: 19px;
-            font-weight: bold;
-            color: #ffd700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+  #hud {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 18px;
+    background: rgba(15, 10, 6, 0.95);
+    border-bottom: 2px solid var(--gold);
+    z-index: 10;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 
-        .inventory-bar {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+  .hud-badge {
+    background: #241911;
+    border: 1px solid var(--gold);
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--gold-light);
+  }
 
-        .inv-item {
-            background: #2b1d12;
-            border: 1px solid #c59b6d;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            animation: popIn 0.3s ease;
-        }
+  #inventory-bar {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 0.9rem;
+  }
 
-        @keyframes popIn {
-            0% { transform: scale(0.7); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+  .inv-item {
+    background: #362618;
+    border: 1px solid #8a6835;
+    padding: 3px 8px;
+    border-radius: 6px;
+    color: #fff;
+    animation: popIn 0.4s ease;
+  }
 
-        /* دیمەنەکان */
-        .scene {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            flex: 1;
-            padding: 10px;
-            animation: fadeIn 0.5s ease;
-        }
+  .screen {
+    display: none;
+    flex: 1;
+    padding: 22px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+    position: relative;
+  }
 
-        .scene.active {
-            display: flex;
-        }
+  .screen.active {
+    display: flex;
+  }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  #start-screen {
+    background: linear-gradient(rgba(18, 12, 8, 0.72), rgba(18, 12, 8, 0.85)),
+                repeating-linear-gradient(45deg, #2b1e14 0px, #2b1e14 20px, #21160e 20px, #21160e 40px);
+  }
 
-        h1 {
-            font-size: 42px;
-            color: #e6b87d;
-            text-shadow: 0 3px 10px rgba(0,0,0,0.9);
-            margin-bottom: 10px;
-        }
+  .vintage-frame {
+    border: 2px solid var(--gold);
+    padding: 30px;
+    border-radius: 12px;
+    background: rgba(25, 18, 12, 0.9);
+    max-width: 550px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  }
 
-        h2 {
-            font-size: 26px;
-            color: #f0c987;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #8c6239;
-            padding-bottom: 6px;
-        }
+  h1 {
+    font-size: 2.4rem;
+    color: var(--gold-light);
+    margin: 0 0 10px 0;
+    text-shadow: 2px 2px 6px #000;
+  }
 
-        p {
-            font-size: 18px;
-            line-height: 1.7;
-            max-width: 680px;
-        }
+  .subtitle {
+    color: #d6c3a5;
+    font-size: 1.05rem;
+    margin-bottom: 20px;
+  }
 
-        /* دوگمەکان */
-        .btn {
-            background: linear-gradient(180deg, #a67c52 0%, #6e4726 100%);
-            color: #fff8e7;
-            border: 2px solid #d4af37;
-            padding: 12px 26px;
-            font-size: 18px;
-            font-family: inherit;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 8px;
-            transition: all 0.2s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
+  .btn {
+    background: linear-gradient(180deg, #b88432 0%, #875c1b 100%);
+    color: #fff;
+    border: 1px solid #f5d38c;
+    padding: 10px 22px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    margin: 5px;
+  }
 
-        .btn:hover {
-            background: linear-gradient(180deg, #c59b6d 0%, #8c5a32 100%);
-            transform: translateY(-2px);
-        }
+  .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    background: linear-gradient(180deg, #cf973e 0%, #9c6b21 100%);
+  }
 
-        .btn:active {
-            transform: scale(0.97);
-        }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(80%);
+  }
 
-        .btn-secondary {
-            background: #2c221a;
-            border-color: #8c6239;
-            font-size: 16px;
-            padding: 9px 18px;
-        }
+  .btn-secondary {
+    background: #3a2a1d;
+    border-color: #9e7b47;
+  }
 
-        .btn-done {
-            border-color: #2ecc71;
-            background: rgba(39, 174, 96, 0.25);
-        }
+  input[type="text"] {
+    padding: 10px 14px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    border: 2px solid var(--gold);
+    background: var(--paper);
+    color: var(--ink);
+    width: 80%;
+    max-width: 300px;
+    text-align: center;
+    margin-bottom: 12px;
+    outline: none;
+    user-select: text;
+  }
 
-        input[type="text"] {
-            padding: 12px 16px;
-            font-size: 18px;
-            border-radius: 8px;
-            border: 2px solid #a67c52;
-            background: #1f1610;
-            color: #fff;
-            font-family: inherit;
-            text-align: center;
-            width: 280px;
-            margin: 12px 0;
-        }
+  .dialogue-box {
+    background: rgba(22, 16, 11, 0.95);
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    padding: 18px;
+    width: 100%;
+    max-width: 700px;
+    position: relative;
+    text-align: right;
+    margin-top: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.8);
+  }
 
-        /* بۆکسی قسەکردن لە سوچەکە */
-        .dialogue-box {
-            width: 100%;
-            max-width: 720px;
-            background: rgba(18, 12, 8, 0.92);
-            border: 2px solid #c59b6d;
-            border-radius: 12px;
-            padding: 20px;
-            position: relative;
-            margin-top: 25px;
-            text-align: right;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.8);
-        }
+  .speaker-tag {
+    position: absolute;
+    top: -16px;
+    right: 20px;
+    background: var(--gold);
+    color: #1a1108;
+    padding: 2px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.95rem;
+  }
 
-        .speaker-tag {
-            position: absolute;
-            top: -18px;
-            right: 20px;
-            background: #8c5a32;
-            color: #fff;
-            padding: 3px 16px;
-            border-radius: 6px;
-            border: 1px solid #ffd700;
-            font-weight: bold;
-            font-size: 16px;
-        }
+  .dialogue-text {
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: var(--paper);
+    margin: 6px 0;
+  }
 
-        /* هەڵبژاردەی ژوورەکان و شتومەکەکان */
-        .grid-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 15px;
-            width: 100%;
-            margin-top: 15px;
-        }
+  .door-visual {
+    width: 160px;
+    height: 250px;
+    background: linear-gradient(90deg, #3b2313, #52321c, #362011);
+    border: 5px solid #241409;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    margin: 12px auto;
+    box-shadow: 0 10px 25px #000;
+    transition: transform 0.15s;
+  }
 
-        .card {
-            background: rgba(38, 26, 18, 0.9);
-            border: 2px solid #8c6239;
-            border-radius: 10px;
-            padding: 18px;
-            cursor: pointer;
-            transition: 0.25s;
-        }
+  .door-knob {
+    width: 16px;
+    height: 16px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: absolute;
+    left: 16px;
+    top: 50%;
+  }
 
-        .card:hover {
-            border-color: #ffd700;
-            background: rgba(60, 42, 28, 0.95);
-            transform: translateY(-3px);
-        }
+  .shake {
+    animation: doorShake 0.4s ease;
+  }
 
-        .card h3 {
-            margin: 0 0 8px 0;
-            color: #ffd700;
-            font-size: 20px;
-        }
+  .rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    width: 100%;
+    max-width: 740px;
+    margin-top: 15px;
+  }
 
-        .card p {
-            margin: 0;
-            font-size: 15px;
-            color: #d9c5a0;
-        }
+  .room-card {
+    background: linear-gradient(180deg, #2e2116, #1d140d);
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    padding: 16px 12px;
+    cursor: pointer;
+    transition: 0.25s;
+    position: relative;
+  }
 
-        /* هەورە بیرکردنەوە (شێوەی Genshin Impact) */
-        .thought-cloud-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 16px;
-            margin: 20px 0;
-            padding: 15px;
-            background: radial-gradient(circle, rgba(25, 45, 65, 0.7), rgba(15, 20, 30, 0.9));
-            border: 2px dashed #5dade2;
-            border-radius: 20px;
-        }
+  .room-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(200, 150, 62, 0.3);
+  }
 
-        .cloud-node {
-            background: linear-gradient(135deg, #1b3b5a, #10253a);
-            border: 2px solid #85c1e9;
-            color: #ebf5fb;
-            padding: 14px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            box-shadow: 0 0 15px rgba(93, 173, 226, 0.35);
-            transition: 0.25s;
-            max-width: 260px;
-        }
+  .room-card.done {
+    border-color: #4caf50;
+    opacity: 0.75;
+  }
 
-        .cloud-node:hover {
-            transform: scale(1.04);
-            border-color: #fff;
-        }
+  .room-icon {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 6px;
+  }
 
-        .cloud-node.selected {
-            background: linear-gradient(135deg, #d4ac0d, #9a7d0a);
-            border-color: #fff;
-            color: #000;
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.8);
-        }
+  .parchment {
+    background: var(--paper);
+    color: var(--ink);
+    padding: 18px;
+    border-radius: 8px;
+    border: 3px solid #8c6239;
+    box-shadow: inset 0 0 25px #c4a472, 0 8px 20px rgba(0,0,0,0.7);
+    max-width: 660px;
+    width: 100%;
+    margin: 12px auto;
+    text-align: center;
+    font-size: 1.1rem;
+    line-height: 1.8;
+  }
 
-        .cloud-node.linked {
-            background: linear-gradient(135deg, #1e8449, #145a32);
-            border-color: #58d68d;
-            color: #fff;
-        }
+  .arabic-text {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #1c1209;
+    direction: rtl;
+  }
 
-        /* وەرەقەی کۆن */
-        .parchment {
-            background: #f4e4bc;
-            color: #2c1e12;
-            padding: 20px;
-            border-radius: 8px;
-            border: 3px double #7e5109;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.7);
-            max-width: 650px;
-            width: 100%;
-            margin: 12px auto;
-            font-weight: bold;
-        }
+  .clouds-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin: 15px 0;
+    max-width: 720px;
+  }
 
-        /* خشتەی گەیاندنی دێڕە شیعرەکان */
-        .poem-match-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(30, 20, 14, 0.9);
-            border: 1px solid #8c6239;
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            gap: 10px;
-            text-align: right;
-            width: 100%;
-        }
+  .thought-cloud {
+    background: radial-gradient(circle, #354766 0%, #1d273b 100%);
+    border: 2px solid #7aa8ff;
+    color: #e8f1ff;
+    padding: 12px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    width: 290px;
+    font-size: 1rem;
+    box-shadow: 0 0 15px rgba(122, 168, 255, 0.3);
+    transition: 0.25s;
+  }
 
-        .poem-verse {
-            font-size: 16px;
-            color: #fff;
-            direction: rtl;
-            flex: 1;
-        }
+  .thought-cloud:hover {
+    transform: scale(1.03);
+  }
 
-        .poem-select {
-            padding: 6px 10px;
-            font-size: 15px;
-            border-radius: 6px;
-            background: #2b1d12;
-            color: #ffd700;
-            border: 1px solid #d4af37;
-            font-family: inherit;
-            min-width: 210px;
-        }
+  .thought-cloud.selected {
+    background: radial-gradient(circle, #4f79c4 0%, #2b4470 100%);
+    border-color: #ffd166;
+    box-shadow: 0 0 20px #ffd166;
+  }
 
-        /* پەیامی ئاگادارکردنەوە */
-        .toast {
-            position: fixed;
-            bottom: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1f1610;
-            border: 2px solid #ffd700;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-size: 17px;
-            font-weight: bold;
-            z-index: 9999;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.9);
-            display: none;
-        }
+  .match-table {
+    width: 100%;
+    max-width: 760px;
+    border-collapse: collapse;
+    margin: 8px auto;
+    background: rgba(25, 18, 12, 0.95);
+    color: var(--paper);
+  }
 
-        .shake {
-            animation: shakeAnim 0.4s ease;
-        }
+  .match-table td, .match-table th {
+    border: 1px solid var(--gold);
+    padding: 7px 10px;
+    font-size: 1rem;
+    color: var(--paper);
+  }
 
-        @keyframes shakeAnim {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            50% { transform: translateX(10px); }
-            75% { transform: translateX(-10px); }
-        }
-    </style>
+  .match-table th {
+    background: #2e2015;
+    color: var(--gold-light);
+  }
+
+  .match-table .arabic-text {
+    color: #fff3dc;
+    font-size: 1.2rem;
+  }
+
+  #bedroom-screen {
+    justify-content: flex-start;
+    overflow-y: auto;
+    max-height: 85vh;
+  }
+
+  .match-select {
+    padding: 4px 6px;
+    font-size: 0.95rem;
+    border-radius: 5px;
+    background: var(--paper);
+    color: var(--ink);
+    font-weight: bold;
+  }
+
+  .options-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 5px;
+    background: #241911;
+    border: 1px solid var(--gold);
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-align: right;
+    margin-bottom: 10px;
+    width: 100%;
+    max-width: 760px;
+  }
+
+  #toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #22170e;
+    border: 2px solid var(--gold);
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    z-index: 999;
+    display: none;
+    box-shadow: 0 5px 20px #000;
+  }
+
+  .final-score-box {
+    background: var(--paper);
+    color: var(--ink);
+    border: 4px double var(--gold);
+    padding: 20px 35px;
+    border-radius: 12px;
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin: 15px 0;
+    box-shadow: 0 0 30px rgba(200, 150, 62, 0.5);
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal-box {
+    background: #1e150f;
+    border: 3px solid var(--gold);
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    text-align: center;
+    box-shadow: 0 10px 40px #000;
+  }
+
+  .ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+
+  .ranking-table th, .ranking-table td {
+    border: 1px solid #573e23;
+    padding: 8px;
+    font-size: 0.95rem;
+  }
+
+  .rank-1 { color: #ffd700; font-weight: bold; }
+  .rank-2 { color: #c0c0c0; font-weight: bold; }
+  .rank-3 { color: #cd7f32; font-weight: bold; }
+
+  .top-icons-box {
+    position: absolute;
+    top: 15px;
+    left: 18px;
+    display: flex;
+    gap: 8px;
+    z-index: 20;
+  }
+
+  .top-icon-btn {
+    font-size: 1.4rem;
+    cursor: pointer;
+    background: rgba(24, 17, 11, 0.85);
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    padding: 4px 10px;
+    transition: 0.2s;
+  }
+  .top-icon-btn:hover {
+    transform: scale(1.08);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes popIn {
+    0% { transform: scale(0.5); }
+    100% { transform: scale(1); }
+  }
+  @keyframes doorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px) rotate(-2deg); }
+    50% { transform: translateX(8px) rotate(2deg); }
+    75% { transform: translateX(-4px); }
+  }
+</style>
 </head>
 <body>
 
-<div class="game-wrapper">
-    <!-- شریتی سەرەوە -->
-    <div class="top-hud" id="topHud" style="display: none;">
-        <div class="score-badge">⭐ خاڵەکان: <span id="scoreDisplay">10</span></div>
-        <div class="inventory-bar" id="inventoryBar">
-            <span style="color: #a67c52; font-size: 14px;">🎒 جانتا:</span>
-        </div>
-    </div>
+<!-- مۆسیقای پاشبنەما -->
+<audio id="bg-music" loop></audio>
 
-    <!-- ١. شاشەی سەرەتا -->
-    <div class="scene active" id="scene-start">
-        <h1>🕵️‍♂️ لێکۆڵەر</h1>
-        <p>نهێنییەکانی مێژوو و ئەدەب لە پشت دەرگا داخراوەکانەوە خۆیان حەشارداوە...</p>
-        <button class="btn" onclick="goToScene('scene-name')">دەستپێکردن بە گەشتە مێژووییەکەت</button>
-    </div>
+<div id="toast"></div>
 
-    <!-- ٢. نووسینی ناو -->
-    <div class="scene" id="scene-name">
-        <h2>ناسنامەی لێکۆڵەر</h2>
-        <p>ئەتەوێ بەچی بانگبکرێیت؟</p>
-        <input type="text" id="playerNameInput" placeholder="ناوەکەت لێرە بنووسە...">
-        <button class="btn" onclick="submitName()">چوونەژوورەوە</button>
-    </div>
-
-    <!-- ٣. ئۆفیس و هاوکارەکەم -->
-    <div class="scene" id="scene-office">
-        <h2>🏢 ئۆفیسی لێکۆڵینەوە</h2>
-        <p style="color: #d9c5a0;">لەناو ئۆفیسە کۆنەکەتدا دانیشتوویت، هاوکارەکەت دێتە ژوورەوە و پەڕەیەکی دۆسیەت پێدەدات...</p>
-        
-        <div class="dialogue-box">
-            <div class="speaker-tag">هاوکارەکەم</div>
-            <p id="officeDialogueText" style="margin: 10px 0 0 0; color: #fff; font-size: 19px;">
-                «سڵاو لێکۆڵەر <span id="displayPlayerName" style="color:#ffd700;"></span>، ئەمە دۆسییەی ئەمڕۆیە، خانووەکە لەلای ڕووباری دیجلەیە، بەختێکی باش.»
-            </p>
-        </div>
-
-        <button class="btn" style="margin-top: 25px;" onclick="goToScene('scene-door')">بەڕێکەوتن بەرەو خانووەکە 🚶‍♂️</button>
-    </div>
-
-    <!-- ٤. بەردەم دەرگای ماڵەکە -->
-    <div class="scene" id="scene-door">
-        <h2>🚪 بەردەم دەرگای خانووەکە (کەناری دیجلە)</h2>
-        <p id="doorStatusText">کات تێپەڕی و گەیشتیتە بەردەم خانووە کۆنەکە. دەرگاکە قورسە و تۆزی لەسەر نیشتووە.</p>
-        <button class="btn" id="pushDoorBtn" onclick="pushDoor()">داگرتن لەسەر دەرگاکە (پاڵنان)</button>
-    </div>
-
-    <!-- ٥. هۆڵی سەرەکی و هەڵبژاردنی ژوورەکان -->
-    <div class="scene" id="scene-hub">
-        <h2>🏚️ ناو ماڵە کۆن و تۆزاوییەکە</h2>
-        <p>ماڵەکە زۆر کۆن و تۆزاوییە. لە کام ژوورەوە دەست پێ دەکەیت؟</p>
-
-        <div class="grid-cards">
-            <div class="card" id="card-kitchen" onclick="enterRoom('kitchen')">
-                <h3>🍳 چێشتخانە</h3>
-                <p id="status-kitchen">ژوورێکی شپرزە و پڕ لە کەلوپەلی کۆن</p>
-            </div>
-            <div class="card" id="card-guest" onclick="enterRoom('guest')">
-                <h3>🛋️ ژووری میوان</h3>
-                <p id="status-guest">مێز و تەلەفزیۆنێکی شکاوی لێیە</p>
-            </div>
-            <div class="card" id="card-hallway" onclick="enterRoom('hallway')">
-                <h3>🖼️ ڕاڕەوەکە</h3>
-                <p id="status-hallway">چەند گۆزە و وێنەیەکی کۆن هەڵواسراون</p>
-            </div>
-            <div class="card" id="card-bedroom" onclick="enterRoom('bedroom')">
-                <h3>🛏️ ژووری نووستن</h3>
-                <p id="status-bedroom">🔒 قفڵە (کلیلێکی شینی ئەوێ)</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ٦. ژووری چێشتخانە -->
-    <div class="scene" id="scene-kitchen">
-        <h2>🍳 چێشتخانەکە</h2>
-        <p>چێشتخانەکە زۆر شپرزەیە و شتومەک بە زەویدا کەوتووە. دوو شت سەرنجت ڕادەکێشن:</p>
-
-        <div class="grid-cards" id="kitchenChoices">
-            <div class="card" onclick="inspectCounter()">
-                <h3>🗄️ کەوانتەرەکە</h3>
-                <p>پشکنینی تاکەکانی کەوانتەرەکە</p>
-            </div>
-            <div class="card" onclick="inspectPainting()">
-                <h3>🖼️ ڕەسمەکەی سەر دیوارەکە</h3>
-                <p>تابلۆیەکی کۆن بە دیوارەکەوە هەڵواسراوە</p>
-            </div>
-        </div>
-
-        <div id="kitchenDetailArea" style="width: 100%; margin-top: 15px;"></div>
-        <button class="btn btn-secondary" style="margin-top: 20px;" onclick="goToScene('scene-hub')">گەڕانەوە بۆ ناو ماڵەکە</button>
-    </div>
-
-    <!-- ٧. ژووری میوان -->
-    <div class="scene" id="scene-guest">
-        <h2>🛋️ ژووری میوان</h2>
-        <div id="guestContent"></div>
-        <button class="btn btn-secondary" style="margin-top: 20px;" onclick="goToScene('scene-hub')">گەڕانەوە بۆ ناو ماڵەکە</button>
-    </div>
-
-    <!-- ٨. ڕاڕەوەکە -->
-    <div class="scene" id="scene-hallway">
-        <h2>🖼️ ڕاڕەوەکە</h2>
-        <p>لە ڕاڕەوەکەدا چەند وێنەیەک بە دیوارەوەن و چەند گۆزەیەکی کۆن لەسەر زەوین:</p>
-        <div class="grid-cards" id="hallwayItems">
-            <div class="card" onclick="clickHallwayItem('pic')">
-                <h3>🖼️ وێنەکانی دیوارەکە</h3>
-                <p>سەیرکردنی وێنە کۆنەکان</p>
-            </div>
-            <div class="card" onclick="clickHallwayItem('pot1')">
-                <h3>🏺 گۆزەی یەکەم</h3>
-                <p>گۆزەیەکی گڵینی بچووک</p>
-            </div>
-            <div class="card" onclick="clickHallwayItem('pot2')">
-                <h3>🏺 گۆزەی دووەم</h3>
-                <p>گۆزەیەکی شکاو</p>
-            </div>
-            <div class="card" onclick="clickHallwayItem('pot3')">
-                <h3>🏺 گۆزەی سێیەم</h3>
-                <p>گۆزەیەکی گەورە و تۆزاوی</p>
-            </div>
-        </div>
-        <div id="hallwayResult" style="width: 100%; margin-top: 15px;"></div>
-        <button class="btn btn-secondary" style="margin-top: 20px;" onclick="goToScene('scene-hub')">گەڕانەوە بۆ ناو ماڵەکە</button>
-    </div>
-
-    <!-- ٩. ژووری نووستن -->
-    <div class="scene" id="scene-bedroom">
-        <h2>🛏️ ژووری نووستن</h2>
-        <div id="bedroomContent"></div>
-    </div>
-
-    <!-- ١٠. شاشەی کۆتایی -->
-    <div class="scene" id="scene-end">
-        <h1>🎉 پیرۆزە لێکۆڵەر!</h1>
-        <p>لێکۆڵینەوەی ئەمڕۆشت بە سەرکەوتوویی تەواو کرد و هەموو نهێنییەکانی شاعیری گەورە (معروف الرصافي)ت ئاشکرا کرد!</p>
-        
-        <div class="parchment" style="font-size: 24px; margin: 20px auto;">
-            🏆 ژمارەی خاڵی کۆکراوە و ماوە: <span id="finalScoreBox" style="color: #b03a2e; font-size: 32px;"></span> خاڵ
-        </div>
-
-        <button class="btn" onclick="location.reload()">دووبارە یاریکردنەوە 🔄</button>
-    </div>
+<!-- مۆدالی ڕانکینگ -->
+<div id="ranking-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h2 style="color:var(--gold-light); margin-top:0;">🏆 ڕانکینگی لێکۆڵەران</h2>
+    <table class="ranking-table">
+      <thead>
+        <tr style="background:#2d2016; color:var(--gold-light);">
+          <th>پلە</th>
+          <th>ناوی لێکۆڵەر</th>
+          <th>خاڵ</th>
+          <th>کات</th>
+        </tr>
+      </thead>
+      <tbody id="ranking-body"></tbody>
+    </table>
+    <br>
+    <button class="btn" onclick="closeModal('ranking-modal')">داخستن ❌</button>
+  </div>
 </div>
 
-<div class="toast" id="toastMsg"></div>
+<!-- مۆدالی سەنتینگ (Setting / Private Teacher) -->
+<div id="setting-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h2 style="color:var(--gold-light); margin-top:0;">⚙️ سەنتینگی مامۆستا</h2>
+    
+    <div id="setting-login-box">
+      <p style="font-size:1rem; color:#d6c3a5;">بۆ چوونەژوورەوە بۆ بەشی تایبەت، کۆدی مامۆستا بنووسە:</p>
+      <input type="text" id="teacher-code-input" placeholder="کۆد (۸ رقمی)..." style="width:100%; max-width:250px;" />
+      <br>
+      <button class="btn" onclick="verifyTeacherCode()">پشکنینی کۆد 🔑</button>
+      <br><br>
+      <button class="btn btn-secondary" onclick="closeModal('setting-modal')">داخستن ❌</button>
+    </div>
+
+    <div id="setting-admin-box" style="display:none; text-align:right;">
+      <p style="color:#81c784; font-weight:bold; text-align:center;">✅ بەخێر هاتیت مامۆستای بەڕێز!</p>
+      <label style="font-size:0.95rem; color:var(--gold-light);">لینکی فایلی دەنگی / مۆسیقای نوێ (MP3 یا OGG):</label>
+      <input type="text" id="music-url-input" placeholder="لینکی مۆسیقا لێرە دابنە..." style="width:100%; margin-top:6px;" />
+      <div style="text-align:center; margin-top:10px;">
+        <button class="btn" onclick="updateMusicSource()">پاشەکەوتکردن و گۆڕینی مۆسیقا 🎵</button>
+        <br><br>
+        <button class="btn btn-secondary" onclick="closeModal('setting-modal')">داخستن ❌</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="game-container">
+  <div id="top-icons-start" class="top-icons-box">
+    <div class="top-icon-btn" title="ڕانکینگ" onclick="openModal('ranking-modal')">🏆</div>
+    <div class="top-icon-btn" title="سەنتینگ" onclick="openModal('setting-modal')">⚙️</div>
+  </div>
+
+  <div id="hud">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span style="cursor:pointer; font-size:1.4rem;" title="ڕانکینگ" onclick="openModal('ranking-modal')">🏆</span>
+      <span style="cursor:pointer; font-size:1.4rem; margin-right:5px;" title="سەنتینگ" onclick="openModal('setting-modal')">⚙️</span>
+      <div class="hud-badge">👤 <span id="hud-name">---</span></div>
+    </div>
+    <div id="inventory-bar">🎒 جانتا: <span id="inv-list" style="color:#aaa;">بەتاڵە</span></div>
+    <div>
+      <span class="hud-badge" style="margin-left: 5px;">⏱️ کات: <span id="hud-timer">00:00</span></span>
+      <button class="btn" style="padding: 4px 8px; font-size: 0.85rem; margin:0;" onclick="toggleMusic()" id="music-btn">🔊 مۆسیقا</button>
+      <span class="hud-badge" style="margin-right: 5px;">⭐ خاڵ: <span id="hud-score">10</span></span>
+    </div>
+  </div>
+
+  <!-- ١. شاشەی سەرەتا -->
+  <div id="start-screen" class="screen active">
+    <div class="vintage-frame">
+      <h1>🕯️ لێکۆڵەر</h1>
+      <p class="subtitle">نهێنییەکانی مێژوو و ئەدەب لە پشت دەرگا داخراوەکانەوە حەشاردراون...</p>
+      
+      <div id="step-start-btn">
+        <button class="btn" onclick="startTheGame()">دەستپێکردن بە گەشتە مێژووییەکەت</button>
+      </div>
+
+      <div id="level-select-box" style="display:none; text-align:right;">
+        <p style="color:var(--gold-light); text-align:center; font-weight:bold; margin-bottom:12px;">مەرحەلەی یارییەکە هەڵبژێرە:</p>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button class="btn" onclick="selectLevel(1)">مەرحەلەی ١: دۆسیەی معروف الرصافي (کراوەیە)</button>
+          <button class="btn btn-secondary" disabled>مەرحەلەی ٢: دۆسیەی نوێ (بەمزووانە دێت)</button>
+          <button class="btn btn-secondary" disabled>مەرحەلەی ٣: دۆسیەی نوێ (بەمزووانە دێت)</button>
+          <button class="btn btn-secondary" disabled>مەرحەلەی ٤: دۆسیەی نوێ (بەمزووانە دێت)</button>
+          <button class="btn btn-secondary" disabled>مەرحەلەی ٥: دۆسیەی نوێ (بەمزووانە دێت)</button>
+        </div>
+      </div>
+
+      <div id="step-name-input" style="display:none; margin-top:15px;">
+        <p style="font-size:1.1rem; color:var(--gold-light);">ناوی خۆت بە پیت و زمانی کوردی بنووسە:</p>
+        <input type="text" id="player-name-input" placeholder="بۆ نموونە: سارا، ئاری..." />
+        <br>
+        <button class="btn" onclick="enterOffice()">چوونەژوورەوە بۆ ئۆفیس</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ٢. شاشەی ئۆفیسەکە -->
+  <div id="office-screen" class="screen">
+    <div style="font-size: 3.8rem; margin-bottom: 8px;">🏢📜</div>
+    <p style="color:#cbb89d;">(ئۆفیسی لێکۆڵینەوە - بەیانییەکی زوو)</p>
+    <button id="take-paper-btn" class="btn" onclick="partnerSpeaks()">📄 وەرگرتنی پەڕەکە لە هاوکارەکەت</button>
+    
+    <div id="office-dialogue" class="dialogue-box" style="display:none;">
+      <div class="speaker-tag">هاوکارەکەم</div>
+      <p id="partner-text" class="dialogue-text"></p>
+      <div style="text-align:left; margin-top:12px;">
+        <button class="btn" onclick="goToHouseDoor()">ڕۆیشتن بەرەو شوێنی دۆسیەکە 🚶‍♂️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ٣. شاشەی بەردەم دەرگای ماڵەکە -->
+  <div id="door-screen" class="screen">
+    <h2>بەردەم خانووە کۆنەکەی لای ڕووباری دیجلە</h2>
+    <p id="door-status" style="color:#d6c3a5;">دەرگاکە قورس و کۆنە، پێویستە پاڵی پێوە بنێیت...</p>
+    <div id="door-box" class="door-visual">
+      <div class="door-knob"></div>
+    </div>
+    <button id="push-door-btn" class="btn" onclick="pushDoor()">داگرتن لەسەر دەرگاکە (٠ / ٣)</button>
+  </div>
+
+  <!-- ٤. هەڵبژاردنی ژوورەکان -->
+  <div id="hub-screen" class="screen">
+    <h2>ناو ماڵە کۆن و تۆزاوییەکە</h2>
+    <p style="color:#e0cfa9; font-size:1.1rem;">لە کام ژوور دەست پێ دەکەیت؟</p>
+    
+    <div class="rooms-grid">
+      <div class="room-card" id="card-kitchen" onclick="enterRoom('kitchen')">
+        <span class="room-icon">🍳</span>
+        <h3>چێشتخانە</h3>
+        <span id="status-kitchen" style="font-size:0.85rem; color:#f0c975;">کراوەیە</span>
+      </div>
+
+      <div class="room-card" id="card-hallway" onclick="enterRoom('hallway')">
+        <span class="room-icon">🏺</span>
+        <h3>ڕاڕەوەکە</h3>
+        <span id="status-hallway" style="font-size:0.85rem; color:#f0c975;">کراوەیە</span>
+      </div>
+
+      <div class="room-card" id="card-living" onclick="enterRoom('living')">
+        <span class="room-icon">📺</span>
+        <h3>میوان</h3>
+        <span id="status-living" style="font-size:0.85rem; color:#f0c975;">کراوەیە</span>
+      </div>
+
+      <div class="room-card" id="card-bedroom" onclick="enterRoom('bedroom')">
+        <span class="room-icon">🛏️</span>
+        <h3>نووستن</h3>
+        <span id="status-bedroom" style="font-size:0.85rem; color:#ff7b7b;">🔒 کلیلە (کلیلی شینی دەوێ)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ٥. ژووری چێشتخانە -->
+  <div id="kitchen-screen" class="screen">
+    <h2>🍳 چێشتخانە تۆزاوییەکە</h2>
+    <div id="kitchen-content" style="width:100%;"></div>
+    <button class="btn btn-secondary" style="margin-top:12px;" onclick="backToHub()">↩️ گەڕانەوە بۆ هەڵبژاردنی ژوور</button>
+  </div>
+
+  <!-- ٦. ژووری میوان -->
+  <div id="living-screen" class="screen">
+    <h2>📺 ژووری میوان</h2>
+    <div id="living-content" style="width:100%;"></div>
+    <button class="btn btn-secondary" style="margin-top:12px;" onclick="backToHub()">↩️ گەڕانەوە بۆ هەڵبژاردنی ژوور</button>
+  </div>
+
+  <!-- ٧. ڕاڕەوەکە -->
+  <div id="hallway-screen" class="screen">
+    <h2>🏺 ڕاڕەوەکە</h2>
+    <div id="hallway-content" style="width:100%;"></div>
+    <button class="btn btn-secondary" style="margin-top:12px;" onclick="backToHub()">↩️ گەڕانەوە بۆ هەڵبژاردنی ژوور</button>
+  </div>
+
+  <!-- ٨. ژووری نووستن -->
+  <div id="bedroom-screen" class="screen">
+    <h2>🛏️ ژووری نووستن</h2>
+    <div id="bedroom-content" style="width:100%;"></div>
+  </div>
+
+  <!-- ٩. شاشەی کۆتایی -->
+  <div id="win-screen" class="screen">
+    <div class="vintage-frame">
+      <div style="font-size:3.2rem;">🏆📜✨</div>
+      <h1 style="font-size:1.9rem;">پیرۆزە لێکۆڵەر <span id="win-player-name"></span>!</h1>
+      <p style="font-size:1.15rem; color:var(--paper);">لێکۆڵینەوەی ئەمڕۆشت بە سەرکەوتوویی تەواو کرد!</p>
+      
+      <div class="final-score-box">
+        <div>⭐ خاڵی کۆکراوە: <span id="final-score-display" style="color:var(--crimson);">10</span></div>
+        <div style="font-size:1.2rem; margin-top:8px;">⏱️ کاتی پێویست: <span id="final-time-display">00:00</span></div>
+      </div>
+
+      <button class="btn" onclick="location.reload()">دووبارەکردنەوەی یارییەکە 🔄</button>
+    </div>
+  </div>
+</div>
 
 <script>
-    // دۆخی یارییەکە
-    let score = 10;
-    let playerName = "";
-    let doorPushes = 0;
+  let state = {
+    playerName: "",
+    score: 10,
+    doorPushes: 0,
+    hasRoundBox: false,
+    hasGreenKey: false,
+    hasBlueKey: false,
+    kitchenDone: false,
+    livingDone: false,
+    hallwayDone: false,
+    selectedClouds: [],
+    cloudStage: 1,
+    secondsElapsed: 0,
+    timerInterval: null
+  };
 
-    // جانتای کەرەستەکان
-    let inventory = {
-        roundBox: false,
-        greenKey: false,
-        blueKey: false,
-        notebook: false
+  // --- سیستەمی دەنگی نەرم و بێ "بزە" بە Web Audio API ---
+  let audioCtx = null;
+  let musicPlaying = false;
+  let bgSynthTimer = null;
+  let useCustomAudioFile = false;
+
+  function initAudioContext() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  // مۆسیقای پاشبنەمای سینەمایی، نهێنی و هاندەر (Mysterious, Curious & Motivational)
+  function playMysteriousStep() {
+    if (!musicPlaying || useCustomAudioFile || !audioCtx) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    // ئاوازێکی نهێنی و سەرنجڕاکێش بە دوو جوملەی مۆسیقی (١٦ هەنگاو) کە هەستی گەڕان و هاندان دەدات
+    // Scale: D Harmonic Minor / Hijaz mystery (D, E, F, G, A, Bb, C#, D, E, F)
+    const arpeggio = [
+      293.66, 440.00, 349.23, 523.25, 466.16, 440.00, 349.23, 329.63,
+      293.66, 440.00, 554.37, 587.33, 466.16, 440.00, 392.00, 329.63
+    ];
+    // هێڵی باسی هاندەر و قووڵ
+    const bassLine = [
+      146.83, 0,      146.83, 174.61, 116.54, 0,      116.54, 130.81,
+      146.83, 0,      220.00, 174.61, 196.00, 0,      164.81, 130.81
+    ];
+    // ئەکۆردی نەرمی پاشبنەما (Pad) لە هەر ٤ هەنگاو جارێک
+    const padChords = {
+      0:  [146.83, 220.00, 349.23], // Dm
+      4:  [116.54, 174.61, 349.23], // Bb
+      8:  [146.83, 220.00, 277.18], // Dm(maj7) - mysterious
+      12: [196.00, 293.66, 466.16]  // Gm - motivational lift
     };
 
-    // دۆخی تەواوکردنی ژوورەکان
-    let progress = {
-        kitchenDone: false,
-        safeStep: 1,
-        thoughtStep: 1,
-        selectedCloud: null,
-        guestDone: false,
-        hallwayDone: false,
-        bedroomStage: 'intro' // intro -> poem -> quiz1 -> quiz2 -> done
-    };
+    const step = (playMysteriousStep.step || 0) % 16;
+    const mFreq = arpeggio[step];
+    const bFreq = bassLine[step];
+    const now = audioCtx.currentTime;
 
-    function showToast(msg, isError = false) {
-        const toast = document.getElementById('toastMsg');
-        toast.innerText = msg;
-        toast.style.borderColor = isError ? '#e74c3c' : '#2ecc71';
-        toast.style.color = isError ? '#ff7675' : '#55efc4';
-        toast.style.display = 'block';
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 3000);
+    // ١. ئاوازی سەرەکی (پەنجەلێدانی نەرم و بلوری - Harp/Celesta feel)
+    if (mFreq > 0) {
+      const mOsc = audioCtx.createOscillator();
+      const mSub = audioCtx.createOscillator();
+      const mFilter = audioCtx.createBiquadFilter();
+      const mGain = audioCtx.createGain();
+
+      mOsc.type = 'sine';
+      mOsc.frequency.setValueAtTime(mFreq, now);
+
+      mSub.type = 'triangle';
+      mSub.frequency.setValueAtTime(mFreq * 2, now); // هارمۆنیکی ناسک
+
+      const subGain = audioCtx.createGain();
+      subGain.gain.setValueAtTime(0.012, now);
+      subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+      mFilter.type = 'lowpass';
+      mFilter.frequency.setValueAtTime(1400, now);
+      mFilter.frequency.exponentialRampToValueAtTime(550, now + 0.65);
+
+      mGain.gain.setValueAtTime(0.0001, now);
+      mGain.gain.linearRampToValueAtTime(0.055, now + 0.025);
+      mGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.72);
+
+      mOsc.connect(mFilter);
+      mSub.connect(subGain);
+      subGain.connect(mFilter);
+      mFilter.connect(mGain);
+      mGain.connect(audioCtx.destination);
+
+      mOsc.start(now);
+      mSub.start(now);
+      mOsc.stop(now + 0.75);
+      mSub.stop(now + 0.4);
     }
 
-    function updateScore(change) {
-        score += change;
-        if (score < 0) score = 0;
-        document.getElementById('scoreDisplay').innerText = score;
-        if (change > 0) {
-            showToast(`✅ ڕاستە! +${change} خاڵت وەرگرت`, false);
-        } else if (change < 0) {
-            showToast(`❌ وەڵامەکە هەڵەیە! خاڵێکت لێڕۆیشت، دووبارە هەوڵبدەوە`, true);
-        }
+    // ٢. دەنگی باسی هاندەر و نهێنی (Pulse)
+    if (bFreq > 0) {
+      const bOsc = audioCtx.createOscillator();
+      const bFilter = audioCtx.createBiquadFilter();
+      const bGain = audioCtx.createGain();
+
+      bOsc.type = 'sine';
+      bOsc.frequency.setValueAtTime(bFreq, now);
+
+      bFilter.type = 'lowpass';
+      bFilter.frequency.setValueAtTime(280, now);
+
+      bGain.gain.setValueAtTime(0.0001, now);
+      bGain.gain.linearRampToValueAtTime(0.075, now + 0.04);
+      bGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+
+      bOsc.connect(bFilter);
+      bFilter.connect(bGain);
+      bGain.connect(audioCtx.destination);
+
+      bOsc.start(now);
+      bOsc.stop(now + 0.58);
     }
 
-    function updateInventoryUI() {
-        const bar = document.getElementById('inventoryBar');
-        bar.innerHTML = '<span style="color: #a67c52; font-size: 14px;">🎒 جانتا:</span>';
-        
-        if (inventory.roundBox) {
-            bar.innerHTML += `<div class="inv-item" onclick="openRoundBox()" style="cursor:pointer;" title="کلیک بکە بۆ کردنەوە">📦 بۆکسە خڕەکە</div>`;
-        }
-        if (inventory.greenKey) {
-            bar.innerHTML += `<div class="inv-item">🗝️ کلیلی سەوز</div>`;
-        }
-        if (inventory.blueKey) {
-            bar.innerHTML += `<div class="inv-item">🔑 کلیلی شین</div>`;
-        }
-        if (inventory.notebook) {
-            bar.innerHTML += `<div class="inv-item">📓 نۆتەکە</div>`;
-        }
+    // ٣. ئەکۆردی گەرم و سینەمایی (Ambient Pad) بۆ هەستی قووڵی و کنجکاوی
+    if (padChords[step]) {
+      padChords[step].forEach(pFreq => {
+        const pOsc = audioCtx.createOscillator();
+        const pFilter = audioCtx.createBiquadFilter();
+        const pGain = audioCtx.createGain();
+
+        pOsc.type = 'sine';
+        pOsc.frequency.setValueAtTime(pFreq, now);
+
+        pFilter.type = 'lowpass';
+        pFilter.frequency.setValueAtTime(600, now);
+
+        pGain.gain.setValueAtTime(0.0001, now);
+        pGain.gain.linearRampToValueAtTime(0.022, now + 0.45);
+        pGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.85);
+
+        pOsc.connect(pFilter);
+        pFilter.connect(pGain);
+        pGain.connect(audioCtx.destination);
+
+        pOsc.start(now);
+        pOsc.stop(now + 1.9);
+      });
     }
 
-    function goToScene(sceneId) {
-        document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
-        document.getElementById(sceneId).classList.add('active');
+    playMysteriousStep.step = step + 1;
+  }
+
+  function startBgMusic() {
+    initAudioContext();
+    let savedMusic = localStorage.getItem("custom_game_music");
+    const musicElem = document.getElementById("bg-music");
+
+    if (savedMusic && savedMusic.trim() !== "") {
+      useCustomAudioFile = true;
+      musicElem.src = savedMusic.trim();
+      musicElem.load();
+      musicElem.play().then(() => {
+        musicPlaying = true;
+        updateMusicButton();
+      }).catch(() => {
+        useCustomAudioFile = false;
+        runSynthMusic();
+      });
+    } else {
+      useCustomAudioFile = false;
+      runSynthMusic();
     }
+  }
 
-    // هەنگاوی ٢: ناو
-    function submitName() {
-        const val = document.getElementById('playerNameInput').value.trim();
-        if (!val) {
-            showToast("تکایە سەرەتا ناوەکەت بنووسە!", true);
-            return;
-        }
-        playerName = val;
-        document.getElementById('displayPlayerName').innerText = playerName;
-        goToScene('scene-office');
+  function runSynthMusic() {
+    musicPlaying = true;
+    updateMusicButton();
+    if (bgSynthTimer) clearInterval(bgSynthTimer);
+    playMysteriousStep();
+    bgSynthTimer = setInterval(playMysteriousStep, 460);
+  }
+
+  function stopBgMusic() {
+    musicPlaying = false;
+    updateMusicButton();
+    if (bgSynthTimer) clearInterval(bgSynthTimer);
+    const musicElem = document.getElementById("bg-music");
+    musicElem.pause();
+  }
+
+  function updateMusicButton() {
+    const btn = document.getElementById("music-btn");
+    if (btn) btn.textContent = musicPlaying ? "🔊 مۆسیقا" : "🔇 مۆسیقا";
+  }
+
+  // دەنگە کارپێکراوەکانی نەرم و سروشتی (بێ "بزە")
+  function playSFX(type) {
+    initAudioContext();
+    if (!audioCtx) return;
+
+    const now = audioCtx.currentTime;
+
+    if (type === 'sfx-door') {
+      // دەنگی پاڵنانی دەرگای کۆن: لێدانێکی نەرمی دار + خڵیسانی قورسی گەرم
+      const thud = audioCtx.createOscillator();
+      const thudGain = audioCtx.createGain();
+      thud.type = 'sine';
+      thud.frequency.setValueAtTime(125, now);
+      thud.frequency.exponentialRampToValueAtTime(42, now + 0.25);
+
+      thudGain.gain.setValueAtTime(0.24, now);
+      thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.27);
+
+      thud.connect(thudGain);
+      thudGain.connect(audioCtx.destination);
+      thud.start(now);
+      thud.stop(now + 0.28);
+
+      // دەنگی نەرمی چوونەناوەوە / خڵیسان (filtered noise)
+      const bufferSize = Math.floor(audioCtx.sampleRate * 0.25);
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.4));
+      }
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(420, now);
+
+      const nGain = audioCtx.createGain();
+      nGain.gain.setValueAtTime(0.12, now);
+      nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+      noise.connect(filter);
+      filter.connect(nGain);
+      nGain.connect(audioCtx.destination);
+      noise.start(now);
+    } else if (type === 'sfx-stumble') {
+      // دەنگی هەڵکەوتنی قاچ لە شتێک: دەنگێکی قورسی نەرمی کورت
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(150, now);
+      osc.frequency.exponentialRampToValueAtTime(38, now + 0.22);
+
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    } else if (type === 'sfx-search') {
+      // دەنگی نەرمی گەڕان یان هەڵگرتن (دوو نۆتی نەرمی پیانۆ/زەنگ)
+      [523.25, 659.25].forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+        gain.gain.setValueAtTime(0.001, now + idx * 0.09);
+        gain.gain.linearRampToValueAtTime(0.1, now + idx * 0.09 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.18);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + idx * 0.09);
+        osc.stop(now + idx * 0.09 + 0.2);
+      });
+    } else if (type === 'sfx-click') {
+      // کلیکێکی زۆر نەرم و پاک
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, now);
+      osc.frequency.exponentialRampToValueAtTime(380, now + 0.045);
+
+      gain.gain.setValueAtTime(0.07, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.055);
     }
+  }
 
-    // هەنگاوی ٤: پاڵنان بە دەرگاکە
-    function pushDoor() {
-        doorPushes++;
-        const btn = document.getElementById('pushDoorBtn');
-        const txt = document.getElementById('doorStatusText');
-        btn.classList.add('shake');
-        setTimeout(() => btn.classList.remove('shake'), 400);
+  function toggleMusic() {
+    if (musicPlaying) {
+      stopBgMusic();
+    } else {
+      startBgMusic();
+    }
+  }
 
-        if (doorPushes === 1) {
-            txt.innerText = "پاڵت نا بە دەرگاکەوە... تۆزێک جووڵا بەڵام هێشتا گیر بووە! دووبارە پاڵ بنێ.";
-        } else if (doorPushes === 2) {
-            txt.innerText = "دەنگی جیڕەی تەختە کۆنەکان دێت... کەمێکی تر پاڵ بنێ!";
+  function startTheGame() {
+    startBgMusic();
+    playSFX("sfx-click");
+    document.getElementById("step-start-btn").style.display = "none";
+    document.getElementById("level-select-box").style.display = "block";
+  }
+
+  function selectLevel(lvl) {
+    playSFX("sfx-click");
+    if (lvl === 1) {
+      document.getElementById("level-select-box").style.display = "none";
+      document.getElementById("step-name-input").style.display = "block";
+      setTimeout(() => document.getElementById("player-name-input").focus(), 100);
+    }
+  }
+
+  function showToast(msg, isError = false) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.style.borderColor = isError ? "#ff5252" : "#4caf50";
+    t.style.display = "block";
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => { t.style.display = "none"; }, 3000);
+  }
+
+  function updateScore(isCorrect) {
+    if (isCorrect) {
+      state.score += 1;
+    } else {
+      state.score -= 2;
+      if (state.score < 0) state.score = 0;
+    }
+    document.getElementById("hud-score").textContent = state.score;
+  }
+
+  function updateInventory() {
+    let items = [];
+    if (state.hasRoundBox && !state.hasBlueKey) items.push("📦 بۆکسی خڕ");
+    if (state.hasGreenKey) items.push("🟢 کلیلی سەوز");
+    if (state.hasBlueKey) items.push("🔵 کلیلی شین");
+    const invEl = document.getElementById("inv-list");
+    if (items.length === 0) {
+      invEl.innerHTML = '<span style="color:#aaa;">بەتاڵە</span>';
+    } else {
+      invEl.innerHTML = items.map(i => `<span class="inv-item">${i}</span>`).join(" ");
+    }
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+  }
+
+  function isKurdishName(str) {
+    const hasEnglishOrNumbers = /[A-Za-z0-9]/.test(str);
+    const hasKurdishLetters = /[\u0600-\u06FF\u0750-\u077F]/.test(str);
+    return !hasEnglishOrNumbers && hasKurdishLetters;
+  }
+
+  function enterOffice() {
+    const nameInput = document.getElementById("player-name-input");
+    const name = nameInput.value.trim();
+    if (!name) {
+      showToast("تکایە ناوەکەت بنووسە!", true);
+      return;
+    }
+    if (!isKurdishName(name)) {
+      showToast("تکایە تەنها پیت و زمانی کوردی بەکاربهێنە (بێ ئینگلیزی و ژمارە)!", true);
+      return;
+    }
+    playSFX("sfx-click");
+    state.playerName = name;
+    document.getElementById("hud-name").textContent = name;
+    document.getElementById("top-icons-start").style.display = "none";
+    document.getElementById("hud").style.display = "flex";
+    
+    state.secondsElapsed = 0;
+    if (state.timerInterval) clearInterval(state.timerInterval);
+    state.timerInterval = setInterval(() => {
+      state.secondsElapsed++;
+      let m = Math.floor(state.secondsElapsed / 60);
+      let s = state.secondsElapsed % 60;
+      document.getElementById("hud-timer").textContent = 
+        (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+    }, 1000);
+
+    showScreen("office-screen");
+  }
+
+  function partnerSpeaks() {
+    playSFX("sfx-click");
+    document.getElementById("take-paper-btn").style.display = "none";
+    const box = document.getElementById("office-dialogue");
+    box.style.display = "block";
+    const text = `«سڵاو ${state.playerName}، ئەمە دۆسییەی ئەمڕۆیە، لەلای ڕووباری دیجلەیە خانووەکە، بەختێکی باش.»`;
+    let i = 0;
+    const target = document.getElementById("partner-text");
+    target.textContent = "";
+    const interval = setInterval(() => {
+      target.textContent += text[i];
+      i++;
+      if (i >= text.length) clearInterval(interval);
+    }, 28);
+  }
+
+  function goToHouseDoor() {
+    playSFX("sfx-click");
+    showScreen("door-screen");
+  }
+
+  function pushDoor() {
+    state.doorPushes++;
+    playSFX("sfx-door");
+    const door = document.getElementById("door-box");
+    door.classList.remove("shake");
+    void door.offsetWidth;
+    door.classList.add("shake");
+
+    const btn = document.getElementById("push-door-btn");
+    if (state.doorPushes < 3) {
+      btn.textContent = `داگرتن لەسەر دەرگاکە (${state.doorPushes} / ٣)`;
+      showToast("دەرگاکە گیر بووە، دووبارە پاڵی پێوە بنێ!");
+    } else {
+      btn.disabled = true;
+      btn.textContent = "دەرگاکە کرایەوە! 🚪";
+      showToast("دەرگاکە بە دەنگێکی قورس کرایەوە...");
+      setTimeout(() => showScreen("hub-screen"), 1000);
+    }
+  }
+
+  function enterRoom(room) {
+    const gameContainer = document.getElementById("game-container");
+    if (room === "kitchen") {
+      if (state.kitchenDone) { showToast("ئەم ژوورەت تەواو کردووە!"); return; }
+      playSFX("sfx-search");
+      gameContainer.style.background = "#2b1810";
+      renderKitchen();
+      showScreen("kitchen-screen");
+    } else if (room === "living") {
+      if (state.livingDone) { showToast("ئەم ژوورەت تەواو کردووە!"); return; }
+      if (!state.hasRoundBox) {
+        state.hasRoundBox = true;
+        updateInventory();
+        playSFX("sfx-stumble");
+        showToast("قاچت لە بۆکسێکی خڕ هەڵکەوت و هەڵتگرت!");
+      } else {
+        playSFX("sfx-search");
+      }
+      gameContainer.style.background = "#0f1f2e";
+      renderLiving();
+      showScreen("living-screen");
+    } else if (room === "hallway") {
+      if (state.hallwayDone && state.hasBlueKey) { showToast("هەموو شتێکی ڕاڕەوەکەت پشکنیوە!"); return; }
+      playSFX("sfx-search");
+      gameContainer.style.background = "#1d1226";
+      renderHallway();
+      showScreen("hallway-screen");
+    } else if (room === "bedroom") {
+      if (!state.hasBlueKey) {
+        playSFX("sfx-door");
+        showToast("🔒 دەرگای ژووری نووستن کلیلە! کلیلی شینی دەوێت.", true);
+        return;
+      }
+      playSFX("sfx-search");
+      gameContainer.style.background = "#0c241b";
+      renderBedroom();
+      showScreen("bedroom-screen");
+    }
+  }
+
+  function backToHub() {
+    playSFX("sfx-click");
+    document.getElementById("game-container").style.background = "radial-gradient(circle at center, #2c2117 0%, #120d09 100%)";
+    showScreen("hub-screen");
+  }
+
+  // --- چێشتخانە ---
+  function renderKitchen() {
+    const container = document.getElementById("kitchen-content");
+    container.innerHTML = `
+      <p>تۆ بەژوورەکەدا گەڕایت و ئەم شتانەت دۆزییەوە: تاکەکانی کەوانتەر بەتاڵن و تەنها قاپ و کەوچکیان تێدایە، بەڵام لە پشت ڕەسمەکەی سەر دیوارەکە قاسەیەکی کۆن هەیە!</p>
+      <div class="parchment" style="margin-top:10px;">
+        <h3 style="margin-top:0;">🔐 قاسە کۆنەکە</h3>
+        <div id="safe-q1">
+          <p class="arabic-text">وشەی یەکەم: « المباح »</p>
+          <button class="btn" onclick="checkSafeQ1('افضتم')">افضتم</button>
+          <button class="btn" onclick="checkSafeQ1('المسموح')">المسموح</button>
+          <button class="btn" onclick="checkSafeQ1('يستوجب')">يستوجب</button>
+        </div>
+        <div id="safe-q2" style="display:none;">
+          <p class="arabic-text">وشەی دووەم: « غامض »</p>
+          <button class="btn" onclick="checkSafeQ2('مطلسم')">مطلسم</button>
+          <button class="btn" onclick="checkSafeQ2('يقضى')">يقضى</button>
+          <button class="btn" onclick="checkSafeQ2('يفرض')">يفرض</button>
+        </div>
+      </div>
+      <div id="kitchen-thought-puzzle" style="display:none; width:100%;">
+        <div class="parchment">
+          <strong>📄 وەرەقەی ناو قاسەکە:</strong><br>
+          «خەڵک پێویستە دەربارەی ڕاستی داگیرکەر بزانێت و دەربارەی ئەنجامەکانیان!!! هەموو هەوڵێک ئەیەم تا ئاشکرای بکەم!»
+        </div>
+        <p style="color:#8cc0ff; font-size:1.05rem;">💭 بەستنەوەی بەڵگەکان (دوو هەوری ڕاست بەیەکەوە ببەستە):</p>
+        <div class="clouds-container">
+          <div class="thought-cloud" id="cloud-1" onclick="selectCloud(1)">☁️ ئەم شاعیرە باسی داگیرکەر ئەکات</div>
+          <div class="thought-cloud" id="cloud-2" onclick="selectCloud(2)">☁️ هانی داگیرکەر ئەدات</div>
+          <div class="thought-cloud" id="cloud-3" onclick="selectCloud(3)">☁️ لە دژی داگیرکەرە</div>
+          <div class="thought-cloud" id="cloud-4" onclick="selectCloud(4)">☁️ هەوڵی بردنی خێروبێری داگیرکراوەکان ئەدەن</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function checkSafeQ1(ans) {
+    if (ans === "المسموح") {
+      playSFX("sfx-search");
+      updateScore(true);
+      showToast("ڕاستە! +١ خاڵ");
+      document.getElementById("safe-q1").style.display = "none";
+      document.getElementById("safe-q2").style.display = "block";
+    } else {
+      updateScore(false);
+      showToast("هەڵەیە! -٢ خاڵ", true);
+    }
+  }
+
+  function checkSafeQ2(ans) {
+    if (ans === "مطلسم") {
+      playSFX("sfx-search");
+      updateScore(true);
+      showToast("قاسەکە کرایەوە! +١ خاڵ");
+      document.getElementById("safe-q2").parentElement.style.display = "none";
+      document.getElementById("kitchen-thought-puzzle").style.display = "block";
+    } else {
+      updateScore(false);
+      showToast("هەڵەیە! -٢ خاڵ", true);
+    }
+  }
+
+  function selectCloud(id) {
+    playSFX("sfx-click");
+    const el = document.getElementById("cloud-" + id);
+    if (state.cloudStage === 1) {
+      if (state.selectedClouds.includes(id)) {
+        state.selectedClouds = state.selectedClouds.filter(x => x !== id);
+        el.classList.remove("selected");
+        return;
+      }
+      state.selectedClouds.push(id);
+      el.classList.add("selected");
+
+      if (state.selectedClouds.length === 2) {
+        if (state.selectedClouds.includes(1) && state.selectedClouds.includes(3)) {
+          updateScore(true);
+          showToast("بەیەکەوە بەستنەکە ڕاستە! +١ خاڵ. ئێستا هەوری هۆکارەکە دیاری بکە...");
+          state.cloudStage = 2;
+          document.getElementById("cloud-1").style.opacity = "0.4";
+          document.getElementById("cloud-3").style.opacity = "0.4";
+          document.getElementById("cloud-1").classList.remove("selected");
+          document.getElementById("cloud-3").classList.remove("selected");
         } else {
-            document.getElementById('topHud').style.display = 'flex';
-            updateInventoryUI();
-            goToScene('scene-hub');
+          updateScore(false);
+          showToast("هەڵەیە! -٢ خاڵ", true);
+          state.selectedClouds.forEach(c => document.getElementById("cloud-" + c).classList.remove("selected"));
+          state.selectedClouds = [];
         }
+      }
+    } else if (state.cloudStage === 2) {
+      if (id === 4) {
+        playSFX("sfx-search");
+        updateScore(true);
+        state.kitchenDone = true;
+        document.getElementById("card-kitchen").classList.add("done");
+        document.getElementById("status-kitchen").textContent = "✔️ تەواو کرا";
+        document.getElementById("status-kitchen").style.color = "#81c784";
+        showToast("تەواو بوو! +١ خاڵ");
+        setTimeout(() => backToHub(), 1100);
+      } else {
+        updateScore(false);
+        showToast("هەڵەیە! -٢ خاڵ", true);
+      }
     }
+  }
 
-    // هەنگاوی ٥: چوونە ناو ژوورەکان
-    function enterRoom(room) {
-        if (room === 'kitchen') {
-            goToScene('scene-kitchen');
-        } else if (room === 'guest') {
-            loadGuestRoom();
-            goToScene('scene-guest');
-        } else if (room === 'hallway') {
-            goToScene('scene-hallway');
-        } else if (room === 'bedroom') {
-            if (!inventory.blueKey) {
-                showToast("🔒 ژووری نووستن قفڵە! پێویستت بە کلیلێکی شینە.", true);
-                return;
-            }
-            loadBedroom();
-            goToScene('scene-bedroom');
-        }
+  // --- ژووری میوان ---
+  function renderLiving() {
+    const container = document.getElementById("living-content");
+    container.innerHTML = `
+      <p>تۆ بەژوورەکەدا گەڕایت و ئەم شتەت دۆزییەوە: بۆکسێکی خڕ کەوتە ناو جانتاکەت، و لە چەکمەجەی دووەمی مێزەکەدا ئەم وەرەقەیە هەبوو:</p>
+      <div class="parchment">
+        <p class="arabic-text">« ناموا ولا تستيقظوا .... ما فاز إلا النُّوم »</p>
+      </div>
+      <p style="font-size:1.1rem; color:var(--gold-light);">شاعیر هونەری شیعری بۆ چی بەکارهێناوە؟</p>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <button class="btn" style="width:90%; max-width:500px;" onclick="checkLivingAnswer('أ')">أ- طوع الفن الشعري للرومانسي</button>
+        <button class="btn" style="width:90%; max-width:500px;" onclick="checkLivingAnswer('ب')">ب- طوع الفن الشعري للواقعي والإجتماعية</button>
+        <button class="btn" style="width:90%; max-width:500px;" onclick="checkLivingAnswer('ج')">ج- طوع الفن الشعري للفكر السياسي والوجدان الوطني</button>
+      </div>
+    `;
+  }
+
+  function checkLivingAnswer(ans) {
+    if (ans === "ج") {
+      playSFX("sfx-search");
+      updateScore(true);
+      state.livingDone = true;
+      document.getElementById("card-living").classList.add("done");
+      document.getElementById("status-living").textContent = "✔️ تەواو کرا";
+      document.getElementById("status-living").style.color = "#81c784";
+      showToast("ڕاستە! +١ خاڵ");
+      setTimeout(() => backToHub(), 1100);
+    } else {
+      updateScore(false);
+      showToast("هەڵەیە! -٢ خاڵ", true);
     }
+  }
 
-    // ================= چێشتخانە =================
-    function inspectCounter() {
-        document.getElementById('kitchenDetailArea').innerHTML = `
-            <div class="dialogue-box">
-                <div class="speaker-tag">پشکنین</div>
-                <p>تاکەکانی کەوانتەرەکەت کردەوە... هەموویان بەتاڵن و تەنها هەندێک قاپ و کەوچکی کۆن و تۆزاوی تێدایە.</p>
-            </div>
-        `;
+  // --- ڕاڕەوەکە ---
+  function renderHallway() {
+    state.hasGreenKey = true;
+    updateInventory();
+    const container = document.getElementById("hallway-content");
+    container.innerHTML = `
+      <p>تۆ بە ڕاڕەوەکەدا گەڕایت و ئەم شتانەت دۆزییەوە: لە گۆزەی سێیەمدا وەرەقەیەک و <strong>کلیلی سەوز 🗝️</strong> هەبوو!</p>
+      <div class="parchment">
+        <p class="arabic-text">« الإلتزام القومي والإنساني طابع شعري منه!! »</p>
+      </div>
+      <button id="open-round-btn" class="btn" onclick="openRoundBoxInHallway()">🟢 کردنەوەی بۆکسە خڕەکە بە کلیلی سەوز</button>
+      <div id="hallway-box-result" style="display:none; margin-top:12px;"></div>
+    `;
+  }
+
+  function openRoundBoxInHallway() {
+    if (!state.hasRoundBox) {
+      showToast("هێشتا بۆکسە خڕەکەت لە ژووری میوان هەڵنەگرتووە! سەرەتا بچۆ بۆ ژووری میوان.", true);
+      return;
     }
+    playSFX("sfx-search");
+    state.hasBlueKey = true;
+    updateInventory();
+    document.getElementById("open-round-btn").style.display = "none";
+    document.getElementById("hallway-box-result").style.display = "block";
+    document.getElementById("hallway-box-result").innerHTML = `
+      <div class="parchment" style="background:#e8f5e9; border-color:#2e7d32;">
+        <h3 style="margin-top:0; color:#1b5e20;">📦 بۆکسە خڕەکە کرایەوە!</h3>
+        <p>بەرهەمەکان و <strong>کلیلی شین 🔑</strong> دەرهێنران:</p>
+        <ul style="list-style:none; padding:0; font-weight:bold;">
+          <li>📕 ديوان الرصافي 1910 | 📗 الأناشيد الوطنية 1920</li>
+          <li>📘 نمو اللغة العامية العراقية | 📙 دروس في آداب اللغة العربية 1928</li>
+        </ul>
+      </div>
+    `;
+    state.hallwayDone = true;
+    document.getElementById("card-hallway").classList.add("done");
+    document.getElementById("status-hallway").textContent = "✔️ تەواو کرا";
+    document.getElementById("status-hallway").style.color = "#81c784";
+    document.getElementById("status-bedroom").textContent = "🔓 ئێستا دەتوانیت بچیتە ژوورەوە!";
+    document.getElementById("status-bedroom").style.color = "#81c784";
+    showToast("کلیلی شینت دەستکەوت!");
+  }
 
-    function inspectPainting() {
-        if (progress.kitchenDone) {
-            document.getElementById('kitchenDetailArea').innerHTML = `
-                <div class="parchment">ئەم ژوورەت بە تەواوی پشکنیوە و بەڵگەکانت بەیەکەوە بەستەوە!</div>
-            `;
-            return;
-        }
-        document.getElementById('kitchenDetailArea').innerHTML = `
-            <div class="dialogue-box">
-                <div class="speaker-tag">دۆزینەوە!</div>
-                <p>ڕەسمەکەت لە دیوارەکە لێکردەوە... لە پشتەوەی بۆکسێکی کۆنی قفڵدراو (قاسە) هەیە!</p>
-                <button class="btn" onclick="openSafePuzzle()">کردنەوەی قاسەکە 🔐</button>
-            </div>
-        `;
+  // --- ژووری نووستن ---
+  function renderBedroom() {
+    const container = document.getElementById("bedroom-content");
+    container.innerHTML = `
+      <p>تۆ بەژوورەکەدا گەڕایت و ئەم شتەت دۆزییەوە: چوویتە سەر کورسییەکە و بۆکسە گەورەکەی سەر دۆڵابەکەت هێنایە خوارەوە، ئەم قەسیدەیەی تێدا بوو:</p>
+      <div class="options-legend" style="margin: 0 auto 10px auto;">
+        <div><strong>أ-</strong> النوم وعدم الإستيقاظ</div>
+        <div><strong>ب-</strong> عدم الفهم</div>
+        <div><strong>ج-</strong> الجهل</div>
+        <div><strong>د-</strong> التأخر</div>
+        <div><strong>ح-</strong> ترك سياسة</div>
+        <div><strong>و-</strong> عدم كلام</div>
+        <div><strong>ي-</strong> عدم تحدث عما يزعج المستعمرين</div>
+        <div><strong>ز-</strong> دیاری نەکراو</div>
+      </div>
+      <table class="match-table" style="margin:0 auto;">
+        <tr><th>دێڕە شیعرەکە</th><th>مەبەست</th></tr>
+        <tr><td class="arabic-text">يا قـــومُ لا تتكلموا .. إن الكلامَ محرَّمُ</td><td><select class="match-select" id="m1"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
+        <tr><td class="arabic-text">ناموا ولا تستيقظوا .. ما فاز إلا النُوم</td><td><select class="match-select" id="m2"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
+        <tr><td class="arabic-text">وتأخروا عن كل ما .. يقضي بأن تتقدّموا</td><td><select class="match-select" id="m3"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
+        <tr><td class="arabic-text">ودَعوا التفهم جانبا .. فالخيرُ ألاَّ تفهموا</td><td><select class="match-select" id="m4"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
+        <tr><td class="arabic-text">وتثبتوا في جهلكم .. فالشرَ أن تتعلموا</td><td><select class="match-select" id="m5"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
+        <tr><td class="arabic-text">أما السياسة فاتركوا .. أبداً وإلا تندموا</td><td><select class="match-select" id="m6"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
+        <tr><td class="arabic-text">إن السياسة سرها .. لو تعلمون مُطلسم</td><td><select class="match-select" id="m7"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
+        <tr><td class="arabic-text">وإذا أفضتم في المباح .. من الحديث فجمجموا</td><td><select class="match-select" id="m8"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
+      </table>
+      <button class="btn" style="margin-top:10px;" onclick="verifyPoemMatching()">پشکنینی گەیاندنەکان ✔️</button>
+      <div id="final-notebook-section" style="display:none; margin-top:12px;"></div>
+    `;
+  }
+
+  function verifyPoemMatching() {
+    const answers = { m1: "و", m2: "أ", m3: "د", m4: "ب", m5: "ج", m6: "ح", m7: "ز", m8: "ي" };
+    let allCorrect = true;
+    for (let key in answers) {
+      if (document.getElementById(key).value !== answers[key]) { allCorrect = false; break; }
     }
-
-    function openSafePuzzle() {
-        const area = document.getElementById('kitchenDetailArea');
-        if (progress.safeStep === 1) {
-            area.innerHTML = `
-                <div class="parchment">
-                    <p>🔐 قاسەکە کۆدی وشەی لەسەرە! دەبێت هاوواتای وشەی یەکەم هەڵبژێریت:</p>
-                    <h3 style="color:#8c2d19; font-size:24px;">وشەی یەکەم: ( المباح )</h3>
-                    <button class="btn" onclick="checkSafeWord(1, 'افضتم')">افضتم</button>
-                    <button class="btn" onclick="checkSafeWord(1, 'المسموح')">المسموح</button>
-                    <button class="btn" onclick="checkSafeWord(1, 'يستوجب')">يستوجب</button>
-                </div>
-            `;
-        } else if (progress.safeStep === 2) {
-            area.innerHTML = `
-                <div class="parchment">
-                    <p>🔐 ئافەرین! ئێستا هاوواتای وشەی دووەم هەڵبژێرە تا قاسەکە بکرێتەوە:</p>
-                    <h3 style="color:#8c2d19; font-size:24px;">وشەی دووەم: ( غامض )</h3>
-                    <button class="btn" onclick="checkSafeWord(2, 'مطلسم')">مطلسم</button>
-                    <button class="btn" onclick="checkSafeWord(2, 'يقضى')">يقضى</button>
-                    <button class="btn" onclick="checkSafeWord(2, 'يفرض')">يفرض</button>
-                </div>
-            `;
-        }
+    if (allCorrect) {
+      playSFX("sfx-search");
+      updateScore(true);
+      showToast("گەیاندنەکان ڕاستن! +١ خاڵ");
+      document.getElementById("final-notebook-section").style.display = "block";
+      document.getElementById("final-notebook-section").innerHTML = `
+        <div class="parchment">
+          <h3 style="margin-top:0;">📓 نۆتەی لێکۆڵەر</h3>
+          <div id="final-q1">
+            <p style="font-weight:bold;">پرسیاری یەکەم: شاعیر ناوی چییە؟</p>
+            <button class="btn" onclick="checkFinalQ1('أ')">أ- ناظم حكمت</button>
+            <button class="btn" onclick="checkFinalQ1('ب')">ب- جميل بن معمر</button>
+            <button class="btn" onclick="checkFinalQ1('ج')">ج- معروف الرصافي</button>
+            <button class="btn" onclick="checkFinalQ1('د')">د- سلمى</button>
+          </div>
+          <div id="final-q2" style="display:none;">
+            <p style="font-weight:bold;">پرسیاری دووەم: شاعیر خەڵکی کوێیە؟</p>
+            <button class="btn" onclick="checkFinalQ2('أ')">أ- تركيا</button>
+            <button class="btn" onclick="checkFinalQ2('ب')">ب- بغداد</button>
+            <button class="btn" onclick="checkFinalQ2('ج')">ج- لبنان</button>
+            <button class="btn" onclick="checkFinalQ2('د')">د- ايران</button></div>
+        </div>
+      `;
+    } else {
+      updateScore(false);
+      showToast("هەڵە لە گەیاندنەکاندا هەیە! -٢ خاڵ", true);
     }
+  }
 
-    function checkSafeWord(step, ans) {
-        if (step === 1) {
-            if (ans === 'المسموح') {
-                updateScore(1);
-                progress.safeStep = 2;
-                openSafePuzzle();
-            } else {
-                updateScore(-1);
-            }
-        } else if (step === 2) {
-            if (ans === 'مطلسم') {
-                updateScore(1);
-                progress.safeStep = 3;
-                showSafeNoteAndThoughts();
-            } else {
-                updateScore(-1);
-            }
-        }
+  function checkFinalQ1(ans) {
+    if (ans === "ج") {
+      playSFX("sfx-search");
+      updateScore(true);
+      showToast("ڕاستە! معروف الرصافي (+١ خاڵ)");
+      document.getElementById("final-q1").style.display = "none";
+      document.getElementById("final-q2").style.display = "block";
+    } else {
+      updateScore(false);
+      showToast("هەڵەیە! -٢ خاڵ", true);
     }
+  }
 
-    function showSafeNoteAndThoughts() {
-        document.getElementById('kitchenChoices').style.display = 'none';
-        document.getElementById('kitchenDetailArea').innerHTML = `
-            <div class="parchment">
-                <p style="font-size:19px;">📜 قاسەکە کرایەوە! لە ناوەوە وەرەقەیەک هەیە نووسراوە:</p>
-                <p style="color:#922b21; font-size:20px;">«خەڵک پێویستە دەربارەی ڕاستی داگیرکەر بزانێت و دەربارەی ئەنجامەکانیان!!! هەموو هەوڵێک ئەیەم تا ئاشکرای بکەم!»</p>
-            </div>
-            <h3 style="color:#85c1e9; margin-top:15px;">💭 بیرکردنەوە و بەیەکەوەبەستنی بەڵگەکان:</h3>
-            <p id="thoughtInstruction" style="font-size:16px;">سەرەتا دوو هەورە بیرکردنەوە بەیەکەوە ببەستە کە مەبەستی سەرەکی شاعیر دەردەخەن (کلیک لە یەکەمیان بکە پاشان دووەمیان):</p>
-            <div class="thought-cloud-container" id="cloudContainer">
-                <div class="cloud-node" id="c1" onclick="clickCloud('c1')">☁️ ئەم شاعیرە باسی داگیرکەر ئەکات</div>
-                <div class="cloud-node" id="c2" onclick="clickCloud('c2')">☁️ هانی داگیرکەر ئەدات</div>
-                <div class="cloud-node" id="c3" onclick="clickCloud('c3')">☁️ لە دژی داگیرکەرە</div>
-                <div class="cloud-node" id="c4" onclick="clickCloud('c4')">☁️ هەوڵی بردنی خێروبێری داگیرکراوەکان ئەدەن</div>
-            </div>
-        `;
+  function checkFinalQ2(ans) {
+    if (ans === "ب") {
+      playSFX("sfx-search");
+      updateScore(true);
+      clearInterval(state.timerInterval);
+      
+      let m = Math.floor(state.secondsElapsed / 60);
+      let s = state.secondsElapsed % 60;
+      let timeStr = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+
+      saveScoreToLeaderboard(state.playerName, state.score, timeStr, state.secondsElapsed);
+
+      document.getElementById("win-player-name").textContent = state.playerName;
+      document.getElementById("final-score-display").textContent = state.score;
+      document.getElementById("final-time-display").textContent = timeStr;
+      document.getElementById("hud").style.display = "none";
+      document.getElementById("top-icons-start").style.display = "flex";
+      document.getElementById("game-container").style.background = "radial-gradient(circle at center, #2c2117 0%, #120d09 100%)";
+      showScreen("win-screen");
+    } else {
+      updateScore(false);
+      showToast("هەڵەیە! -٢ خاڵ", true);
     }
+  }
 
-    function clickCloud(id) {
-        if (progress.kitchenDone) return;
+  // --- سیستەمی ڕانکینگ ---
+  function saveScoreToLeaderboard(name, score, timeStr, rawSeconds) {
+    let records = JSON.parse(localStorage.getItem("detector_ranking") || "[]");
+    records.push({ name, score, timeStr, rawSeconds });
+    records.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.rawSeconds - b.rawSeconds;
+    });
+    if (records.length > 10) records = records.slice(0, 10);
+    localStorage.setItem("detector_ranking", JSON.stringify(records));
+  }
 
-        if (progress.thoughtStep === 1) {
-            // دەبێت c1 و c3 بەیەکەوە ببەسترێن
-            if (!progress.selectedCloud) {
-                progress.selectedCloud = id;
-                document.getElementById(id).classList.add('selected');
-            } else if (progress.selectedCloud === id) {
-                document.getElementById(id).classList.remove('selected');
-                progress.selectedCloud = null;
-            } else {
-                const pair = [progress.selectedCloud, id];
-                if (pair.includes('c1') && pair.includes('c3')) {
-                    document.getElementById('c1').classList.remove('selected');
-                    document.getElementById('c3').classList.remove('selected');
-                    document.getElementById('c1').classList.add('linked');
-                    document.getElementById('c3').classList.add('linked');
-                    progress.selectedCloud = null;
-                    progress.thoughtStep = 2;
-                    updateScore(1);
-                    document.getElementById('thoughtInstruction').innerHTML = 
-                        "✨ نایابە! ئێستا ئەم دووانە بوون بە هۆکارەکە؛ کلیک لەو هەورە بکە کە <b>هۆکاری دژایەتیکردنەکە</b> ڕوون دەکاتەوە:";
-                } else {
-                    document.getElementById(progress.selectedCloud).classList.remove('selected');
-                    progress.selectedCloud = null;
-                    updateScore(-1);
-                }
-            }
-        } else if (progress.thoughtStep === 2) {
-            // دەبێت c4 هەڵبژێردرێت
-            if (id === 'c4') {
-                document.getElementById('c4').classList.add('linked');
-                progress.kitchenDone = true;
-                updateScore(1);
-                document.getElementById('card-kitchen').classList.add('btn-done');
-                document.getElementById('status-kitchen').innerText = "✅ تەواوکرا";
-                document.getElementById('thoughtInstruction').innerHTML = 
-                    "<span style='color:#2ecc71; font-weight:bold;'>🎉 هەموو بەڵگەکانی چێشتخانەکەت بەیەکەوە بەستەوە! ئێستا دەتوانیت بگەڕێیتەوە و ژوورێکی تر هەڵبژێریت.</span>";
-            } else {
-                updateScore(-1);
-            }
-        }
-    }
+  function openModal(modalId) {
+    playSFX("sfx-click");
+    if(modalId === 'ranking-modal') {
+      let records = JSON.parse(localStorage.getItem("detector_ranking") || "[]");
+      const tbody = document.getElementById("ranking-body");
+      tbody.innerHTML = "";
+      
+      if (records.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="color:#aaa;">هێشتا هیچ تۆمارێک نییە!</td></tr>`;
+      } else {
+        records.forEach((rec, idx) => {
+          let rankClass = "";
+          let medal = (idx + 1);
+          if (idx === 0) { rankClass = "rank-1"; medal = "🥇 گۆڵد"; }
+          else if (idx === 1) { rankClass = "rank-2"; medal = "🥈 سلڤەر"; }
+          else if (idx === 2) { rankClass = "rank-3"; medal = "🥉 برۆنز"; }
 
-    // ================= ژووری میوان =================
-    function loadGuestRoom() {
-        const div = document.getElementById('guestContent');
-        if (!inventory.roundBox) {
-            inventory.roundBox = true;
-            updateInventoryUI();
-            div.innerHTML = `
-                <div class="dialogue-box">
-                    <div class="speaker-tag">ڕووداو</div>
-                    <p>لە ڕێگادا قاچت لە بۆکسێکی خڕ هەڵدەکەوێت! هەڵدەستیتەوە و بۆکسە خڕەکە هەڵدەگریت، بەڵام کلیلی دەوێت بۆیە دەیکەیتە ناو جانتاکەت.</p>
-                </div>
-                <button class="btn" style="margin-top:15px;" onclick="loadGuestRoom()">سەیرکردنی ناو ژوورەکە 👀</button>
-            `;
-            return;
-        }
-
-        if (progress.guestDone) {
-            div.innerHTML = `
-                <div class="parchment">ئەم ژوورەت پشکنیوە و وەرەقەکەی ناو چەکمەجەکەت شیکار کردووە!</div>`;
-            return;
-        }
-
-        div.innerHTML = `
-            <p>لە ژوورەکەدا مێزێکی لێیە و تەلەفزیۆنێکی شکاوی لەسەرە، مێزەکە چەند چەکمەجەیەکی هەیە:</p>
-            <div class="grid-cards">
-                <div class="card" onclick="showToast('چەکمەجەی یەکەم بەتاڵە و تەنها تۆزی تێدایە.', false)">
-                    <h3>🗄️ چەکمەجەی یەکەم</h3>
-                    <p>کردنەوەی چەکمەجەی یەکەم</p>
-                </div>
-                <div class="card" onclick="openSecondDrawer()">
-                    <h3>🗄️ چەکمەجەی دووەم</h3>
-                    <p>کردنەوەی چەکمەجەی دووەم</p>
-                </div>
-            </div>
-            <div id="guestPuzzleArea" style="margin-top:15px;"></div>
-        `;
-    }
-
-    function openSecondDrawer() {
-        document.getElementById('guestPuzzleArea').innerHTML = `
-            <div class="parchment">
-                <p>📜 لە چەکمەجەی دووەمدا وەرەقەیەکی کۆن دەدۆزیتەوە کە تێیدا نووسراوە:</p>
-                <h3 style="color:#7e5109; font-size:22px;">« ناموا و لا تستيقظوا .... ما فاز إلا النُّوَّم »</h3>
-                <p>دوای خوێندنەوەی ئەم کۆپلەیە، بیر دەکەیتەوە شاعیر لێرەدا هونەری شیعری بۆ چ مەبەستێک بەکارهێناوە؟</p>
-                <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-                    <button class="btn" onclick="checkGuestQuiz('أ')">أ- طوع الفن الشعري للرومانسي</button>
-                    <button class="btn" onclick="checkGuestQuiz('ب')">ب- طوع الفن الشعري للواقعي والاجتماعية</button>
-                    <button class="btn" onclick="checkGuestQuiz('ج')">ج- طوع الفن الشعري للفكر السياسي والوجدان الوطني</button>
-                </div>
-            </div>
-        `;
-    }
-
-    function checkGuestQuiz(choice) {
-        if (choice === 'ج') {
-            progress.guestDone = true;
-            updateScore(1);
-            document.getElementById('card-guest').classList.add('btn-done');
-            document.getElementById('status-guest').innerText = "✅ تەواوکرا";
-            document.getElementById('guestPuzzleArea').innerHTML = `
-                <div class="parchment" style="border-color:#27ae60;">
-                    ✅ ڕاستە! شاعیر هونەری شیعری خستووەتە خزمەتی بیری سیاسی و هەستی نیشتمانییەوە.
-                </div>
-            `;
-        } else {
-            updateScore(-1);
-        }
-    }
-
-    // ================= ڕاڕەوەکە =================
-    function clickHallwayItem(item) {
-        const res = document.getElementById('hallwayResult');
-        if (item === 'pic') {
-            res.innerHTML = `<div class="dialogue-box"><div class="speaker-tag">پشکنین</div><p>سەیری وێنەکانی سەر دیوارەکەت کرد، تەنها وێنەی سروشتی کۆنن و هیچ شتێکیان تێدا نییە.</p></div>`;
-        } else if (item === 'pot1' || item === 'pot2') {
-            res.innerHTML = `<div class="dialogue-box"><div class="speaker-tag">پشکنین</div><p>سەیری ناو گۆزەکەت کرد... بەتاڵە و هیچی تێدا نییە.</p></div>`;
-        } else if (item === 'pot3') {
-            if (!inventory.greenKey) {
-                inventory.greenKey = true;
-                updateInventoryUI();
-            }
-            res.innerHTML = `
-                <div class="parchment">
-                    <p>🏺 گۆزەی سێیەمت هەڵڕشت! لە ناوەوە وەرەقەیەک و <b>کلیلێکی سەوز</b> کەوتنە خوارەوە!</p>
-                    <p style="color:#922b21; font-size:20px;">📜 وەرەقەکە: « الإلتزام القومي و الإنساني طابع شعري منه!! »</p>
-                    <p style="color:#1e8449;">🗝️ کلیلە سەوزەکە هی بۆکسە خڕەکەی ناو جانتاکەتە!</p>
-                    <button class="btn" onclick="openRoundBox()">کردنەوەی بۆکسە خڕەکە بە کلیلە سەوزەکە 📦</button>
-                </div>
-            `;
-        }
-    }
-
-    function openRoundBox() {
-        if (!inventory.roundBox) {
-            showToast("هێشتا بۆکسە خڕەکەت نەدۆزیوەتەوە!", true);
-            return;
-        }
-        if (!inventory.greenKey) {
-            showToast("🔒 بۆکسە خڕەکە قفڵە و پێویستی بە کلیلێکی سەوزە (لە ڕاڕەوەکە بیگەڕێ)!", true);
-            return;
-        }
-
-        if (!inventory.blueKey) {
-            inventory.blueKey = true;
-            progress.hallwayDone = true;
-            updateInventoryUI();
-            document.getElementById('card-hallway').classList.add('btn-done');
-            document.getElementById('status-hallway').innerText = "✅ تەواوکرا";
-            document.getElementById('status-bedroom').innerText = "🔓 کراوەیە (بە کلیلە شینەکە)";
-        }
-
-        document.getElementById('hallwayResult').innerHTML = `
-            <div class="parchment" style="border-color:#2980b9;">
-                <h3>📦 ناوەڕۆکی بۆکسە خڕەکە کرایەوە!</h3>
-                <p>لە ناوەوە ناوی چەند بەرهەمێکی گرنگی شاعیر نووسراون:</p>
-                <ul style="text-align:right; font-size:18px; line-height:1.8; direction:rtl;">
-                    <li>📖 ديوان الرصافي 1910</li>
-                    <li>📖 الأناشيد الوطنية 1920</li>
-                    <li>📖 نمو اللغة العامية العراقية</li>
-                    <li>📖 دروس في آداب اللغة العربية 1928</li>
-                </ul>
-                <p style="color:#2471a3; font-size:19px;">🔑 هەروەها <b>کلیلێکی شین</b>ی تێدایە کە هی دەرگای ژووری نووستنە! ئێستا دەتوانیت بچیتە ژووری نووستن.</p>
-            </div>
-        `;
-        goToScene('scene-hallway');
-    }
-
-    // ================= ژووری نووستن =================
-    function loadBedroom() {
-        const div = document.getElementById('bedroomContent');
-
-        if (progress.bedroomStage === 'intro') {
-            div.innerHTML = `
-                <p>چوویتە ناو ژووری نووستنەکە... سیسەمێکی کۆن، مێزێک، کورسییەکی کۆن و دۆڵابێکی بەرزی لێیە.</p>
-                <p>لە سەرەوەی دۆڵابەکە بۆکسێکی گەورە دەبینیت، بەڵام دۆڵابەکە زۆر بەرزە و دەستت پێی ناگات!</p>
-                <div class="grid-cards">
-                    <div class="card" onclick="showToast('سیسەمەکە تۆزاوییە، سەرەتا دەبێت بگەیتە بۆکسەکەی سەر دۆڵابەکە.', false)">
-                        <h3>🛏️ سیسەمە کۆنەکە</h3>
-                        <p>پشکنینی سیسەمەکە</p>
-                    </div>
-                    <div class="card" onclick="climbChair()">
-                        <h3>🪑 کورسییە کۆنەکە</h3>
-                        <p>کلیک بکە بۆ ئەوەی بچیتە سەر کورسییەکە و بۆکسەکە بهێنیتە خوارەوە</p>
-                    </div>
-                </div>
-            `;
-        } else if (progress.bedroomStage === 'poem') {
-            renderPoemMatching();
-        } else if (progress.bedroomStage === 'quiz1') {
-            renderFinalQuiz1();
-        } else if (progress.bedroomStage === 'quiz2') {
-            renderFinalQuiz2();
-        }
-    }
-
-    function climbChair() {
-        progress.bedroomStage = 'poem';
-        renderPoemMatching();
-    }
-
-    function renderPoemMatching() {
-        const verses = [
-            { id: 'v1', text: 'يا قـــومُ لا تتكلموا .. إن الكلامَ محرَّمُ', correct: 'و' },
-            { id: 'v2', text: 'ناموا ولا تستيقظوا .. ما فاز إلا النُّوَّم', correct: 'أ' },
-            { id: 'v3', text: 'وتأخروا عن كل ما .. يقضي بأن تتقدّموا', correct: 'د' },
-            { id: 'v4', text:'ودَعوا التفهم جانبا .. فالخيرُ ألاَّ تفهموا', correct: 'ب' },
-            { id: 'v5', text: 'وتثبتوا في جهلكم .. فالشرُّ أن تتعلموا', correct: 'ج' },
-            { id: 'v6', text: 'أما السياسة فاتركوا .. أبداً وإلا تندموا', correct: 'ح' },
-            { id: 'v7', text: 'إن السياسة سرها .. لو تعلمون مُطلسم', correct: 'ز' },
-            { id: 'v8', text: 'وإذا أفضتم في المباح .. من الحديث فجمجموا', correct: 'ي' }
-        ];
-
-        const optionsHTML = `
-            <option value="">-- پیتێک هەڵبژێرە --</option>
-            <option value="أ">أ- النوم و عدم الإستيقاظ</option>
-            <option value="ب">ب- عدم الفهم</option>
-            <option value="ج">ج- الجهل</option>
-            <option value="د">د- التأخر</option>
-            <option value="ح">ح- ترك السياسة</option>
-            <option value="و">و- عدم الكلام</option>
-            <option value="ي">ي- عدم التحدث عما يزعج المستعمرين</option>
-            <option value="ز">ز- دیاری نەکراو</option>
-        `;
-
-        let rowsHTML = '';
-        verses.forEach(v => {
-            rowsHTML += `
-                <div class="poem-match-row">
-                    <div class="poem-verse">${v.text}</div>
-                    <select class="poem-select" id="${v.id}">
-                        ${optionsHTML}
-                    </select>
-                </div>
-            `;
+          tbody.innerHTML += `
+            <tr class="${rankClass}">
+              <td>${medal}</td>
+              <td>${rec.name}</td>
+              <td>⭐ ${rec.score}</td>
+              <td>⏱️ ${rec.timeStr}</td>
+            </tr>
+          `;
         });
+      }
+    } else if(modalId === 'setting-modal') {
+      document.getElementById("teacher-code-input").value = "";
+      document.getElementById("setting-login-box").style.display = "block";
+      document.getElementById("setting-admin-box").style.display = "none";
+    }
+    document.getElementById(modalId).style.display = "flex";
+  }
 
-        document.getElementById('bedroomContent').innerHTML = `
-            <p>چوویتە سەر کورسییەکە و بۆکسەکەت هێنایە خوارەوە، لەسەر سیسەمەکە دانیشتیت و کردتەوە. لە ناوەوە ئەم کۆپلە شیعرەی تێدایە:</p>
-            <p style="color:#ffd700; font-size:16px;">بۆ هەر دێڕێک پیتی گونجاو دیاری بکە کە مەبەستی شاعیر دەردەخات:</p>
-            <div style="width:100%; max-height: 360px; overflow-y: auto; padding: 5px;">
-                ${rowsHTML}
-            </div>
-            <button class="btn" style="margin-top:12px;" onclick="verifyPoemMatching()">پشکنینی گەیاندنەکان ✅</button>
-        `;
+  function closeModal(modalId) {
+    playSFX("sfx-click");
+    document.getElementById(modalId).style.display = "none";
+  }
+
+  function verifyTeacherCode() {
+    const code = document.getElementById("teacher-code-input").value.trim();
+    if(code === "83830813") {
+      playSFX("sfx-search");
+      showToast("کۆدەکە ڕاستە!");
+      document.getElementById("setting-login-box").style.display = "none";
+      document.getElementById("setting-admin-box").style.display = "block";
+      document.getElementById("music-url-input").value = localStorage.getItem("custom_game_music") || "";
+    } else {
+      playSFX("sfx-stumble");
+      showToast("کۆدەکە هەڵەیە!", true);
+    }
+  }
+
+  function updateMusicSource() {
+    const newUrl = document.getElementById("music-url-input").value.trim();
+    if (!newUrl) {
+      localStorage.removeItem("custom_game_music");
+      useCustomAudioFile = false;
+      const musicElem = document.getElementById("bg-music");
+      musicElem.pause();
+      musicElem.src = "";
+      runSynthMusic();
+      playSFX("sfx-search");
+      showToast("گەڕایەوە سەر مۆسیقای بنەڕەتی یارییەکە!");
+      closeModal('setting-modal');
+      return;
     }
 
-    function verifyPoemMatching() {
-        const answers = {
-            v1: 'و',
-            v2: 'أ',
-            v3: 'د',
-            v4: 'ب',
-            v5: 'ج',
-            v6: 'ح',
-            v7: 'ز',
-            v8: 'ي'
-        };
+    localStorage.setItem("custom_game_music", newUrl);
+    useCustomAudioFile = true;
+    if (bgSynthTimer) clearInterval(bgSynthTimer);
 
-        let allFilled = true;
-        let allCorrect = true;
+    const musicElem = document.getElementById("bg-music");
+    musicElem.src = newUrl;
+    musicElem.load();
+    musicElem.play().then(() => {
+      musicPlaying = true;
+      updateMusicButton();
+    }).catch(() => {
+      useCustomAudioFile = false;
+      runSynthMusic();
+      showToast("نەتوانرا فایلە دەرەکییەکە لێبدرێت، مۆسیقای بنەڕەتی بەکارهاتەوە.", true);
+    });
 
-        for (let key in answers) {
-            const val = document.getElementById(key).value;
-            if (!val) {
-                allFilled = false;
-                break;
-            }
-            if (val !== answers[key]) {
-                allCorrect = false;
-                document.getElementById(key).style.borderColor = '#e74c3c';
-            } else {
-                document.getElementById(key).style.borderColor = '#2ecc71';
-            }
-        }
-
-        if (!allFilled) {
-            showToast("تکایە هەموو دێڕەکان هەڵبژێرە!", true);
-            return;
-        }
-
-        if (allCorrect) {
-            updateScore(2);
-            inventory.notebook = true;
-            updateInventoryUI();
-            progress.bedroomStage = 'quiz1';
-            renderFinalQuiz1();
-        } else {
-            updateScore(-1);
-        }
-    }
-
-    function renderFinalQuiz1() {
-        document.getElementById('bedroomContent').innerHTML = `
-            <div class="parchment">
-                <p>📓 ئافەرین! نۆتەکەت لە جانتاکەت دەرهێنا، دوو پرسیاری کۆتایی تێدایە بۆ تۆمارکردنی ئەنجامی دۆسییەکە:</p>
-                <h3>پرسیاری یەکەم: ناوی ئەم شاعیرە چییە؟</h3>
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    <button class="btn" onclick="checkFinalQ1('أ')">أ- ناظم حكمت</button>
-                    <button class="btn" onclick="checkFinalQ1('ب')">ب- جميل بن معمر</button>
-                    <button class="btn" onclick="checkFinalQ1('ج')">ج- معروف الرصافي</button>
-                    <button class="btn" onclick="checkFinalQ1('د')">د- سلمى</button>
-                </div>
-            </div>
-        `;
-    }
-
-    function checkFinalQ1(ans) {
-        if (ans === 'ج') {
-            updateScore(1);
-            progress.bedroomStage = 'quiz2';
-            renderFinalQuiz2();
-        } else {
-            updateScore(-1);
-        }
-    }
-
-    function renderFinalQuiz2() {
-        document.getElementById('bedroomContent').innerHTML = `
-            <div class="parchment">
-                <h3>پرسیاری دووەم: ئەم شاعیرە خەڵکی کوێیە؟</h3>
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    <button class="btn" onclick="checkFinalQ2('أ')">أ- تركيا</button>
-                    <button class="btn" onclick="checkFinalQ2('ب')">ب- بغداد</button>
-                    <button class="btn" onclick="checkFinalQ2('ج')">ج- لبنان</button>
-                    <button class="btn" onclick="checkFinalQ2('د')">د- ايران</button>
-                </div>
-            </div>
-        `;
-    }
-
-    function checkFinalQ2(ans) {
-        if (ans === 'ب') {
-            updateScore(1);
-            progress.bedroomStage = 'done';
-            document.getElementById('finalScoreBox').innerText = score;
-            document.getElementById('topHud').style.display = 'none';
-            goToScene('scene-end');
-        } else {
-            updateScore(-1);
-        }
-    }
+    playSFX("sfx-search");
+    showToast("مۆسیقا بە سەرکەوتوویی گۆڕدرا بۆ هەموو قوتابییەکان!");
+    closeModal('setting-modal');
+  }
 </script>
-
 </body>
 </html>
