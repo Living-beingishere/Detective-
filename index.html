@@ -1,1557 +1,827 @@
 <!DOCTYPE html>
-<html lang="ku" dir="rtl">
+<html lang="ckb" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>یاری لێکۆڵەر - دۆسیەی معروف الرصافي</title>
+<title>قۆناغی یەکەم: دۆسییەی خانووە کۆنەکە</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&display=swap');
-
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&family=Vazirmatn:wght@400;600;800&display=swap');
   :root {
-    --bg-dark: #14100c;
-    --paper: #f3e6ce;
-    --paper-dark: #dec9a4;
-    --ink: #2b1d12;
-    --gold: #c8963e;
-    --gold-light: #f0c975;
-    --crimson: #8b2626;
-    --green: #2c6e49;
-    --blue: #235789;
+    --bg: #0f1115;
+    --panel: #181c23;
+    --paper: #f4ecd8;
+    --paper-ink: #2b2118;
+    --accent: #d97706;
+    --accent-hover: #b45309;
+    --danger: #dc2626;
+    --success: #16a34a;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
   }
-
-  * {
-    box-sizing: border-box;
-    font-family: 'Noto Naskh Arabic', Tahoma, sans-serif;
-    user-select: none;
-  }
-
+  * { box-sizing: border-box; }
   body {
     margin: 0;
-    padding: 0;
-    background-color: var(--bg-dark);
-    color: var(--paper);
+    background: radial-gradient(circle at top, #1f2430 0%, var(--bg) 75%);
+    color: var(--text);
+    font-family: 'Vazirmatn', 'Noto Naskh Arabic', sans-serif;
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow-x: hidden;
-    transition: background 0.6s ease;
+    line-height: 1.9;
   }
-
-  #game-container {
-    width: 100%;
-    max-width: 900px;
-    min-height: 640px;
-    background: radial-gradient(circle at center, #2c2117 0%, #120d09 100%);
-    border: 3px solid var(--gold);
-    border-radius: 14px;
-    box-shadow: 0 0 40px rgba(0,0,0,0.9), inset 0 0 60px rgba(0,0,0,0.7);
-    position: relative;
-    overflow: hidden;
+  .hud {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(15, 17, 21, 0.94);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #2d3340;
+    padding: 10px 16px;
     display: flex;
-    flex-direction: column;
-    transition: background 0.6s ease;
-  }
-
-  #hud {
-    display: none;
+    flex-wrap: wrap;
+    gap: 12px;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 18px;
-    background: rgba(15, 10, 6, 0.95);
-    border-bottom: 2px solid var(--gold);
-    z-index: 10;
-    flex-wrap: wrap;
-    gap: 8px;
   }
-
-  .hud-badge {
-    background: #241911;
-    border: 1px solid var(--gold);
-    padding: 5px 12px;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: bold;
-    color: var(--gold-light);
-  }
-
-  #inventory-bar {
+  .stages-bar {
     display: flex;
     gap: 6px;
-    align-items: center;
-    font-size: 0.9rem;
-  }
-
-  .inv-item {
-    background: #362618;
-    border: 1px solid #8a6835;
-    padding: 3px 8px;
-    border-radius: 6px;
-    color: #fff;
-    animation: popIn 0.4s ease;
-  }
-
-  .screen {
-    display: none;
-    flex: 1;
-    padding: 22px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    animation: fadeIn 0.5s ease;
-    position: relative;
-  }
-
-  .screen.active {
-    display: flex;
-  }
-
-  #start-screen {
-    background: linear-gradient(rgba(18, 12, 8, 0.72), rgba(18, 12, 8, 0.85)),
-                repeating-linear-gradient(45deg, #2b1e14 0px, #2b1e14 20px, #21160e 20px, #21160e 40px);
-  }
-
-  .vintage-frame {
-    border: 2px solid var(--gold);
-    padding: 30px;
-    border-radius: 12px;
-    background: rgba(25, 18, 12, 0.9);
-    max-width: 550px;
-    width: 100%;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-  }
-
-  h1 {
-    font-size: 2.4rem;
-    color: var(--gold-light);
-    margin: 0 0 10px 0;
-    text-shadow: 2px 2px 6px #000;
-  }
-
-  .subtitle {
-    color: #d6c3a5;
-    font-size: 1.05rem;
-    margin-bottom: 20px;
-  }
-
-  .btn {
-    background: linear-gradient(180deg, #b88432 0%, #875c1b 100%);
-    color: #fff;
-    border: 1px solid #f5d38c;
-    padding: 10px 22px;
-    font-size: 1.05rem;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    margin: 5px;
-  }
-
-  .btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    background: linear-gradient(180deg, #cf973e 0%, #9c6b21 100%);
-  }
-
-  .btn:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-    filter: grayscale(80%);
-  }
-
-  .btn-secondary {
-    background: #3a2a1d;
-    border-color: #9e7b47;
-  }
-
-  input[type="text"] {
-    padding: 10px 14px;
-    font-size: 1.1rem;
-    border-radius: 8px;
-    border: 2px solid var(--gold);
-    background: var(--paper);
-    color: var(--ink);
-    width: 80%;
-    max-width: 300px;
-    text-align: center;
-    margin-bottom: 12px;
-    outline: none;
-    user-select: text;
-  }
-
-  .dialogue-box {
-    background: rgba(22, 16, 11, 0.95);
-    border: 2px solid var(--gold);
-    border-radius: 10px;
-    padding: 18px;
-    width: 100%;
-    max-width: 700px;
-    position: relative;
-    text-align: right;
-    margin-top: 15px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.8);
-  }
-
-  .speaker-tag {
-    position: absolute;
-    top: -16px;
-    right: 20px;
-    background: var(--gold);
-    color: #1a1108;
-    padding: 2px 14px;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 0.95rem;
-  }
-
-  .dialogue-text {
-    font-size: 1.15rem;
-    line-height: 1.7;
-    color: var(--paper);
-    margin: 6px 0;
-  }
-
-  .door-visual {
-    width: 160px;
-    height: 250px;
-    background: linear-gradient(90deg, #3b2313, #52321c, #362011);
-    border: 5px solid #241409;
-    border-radius: 8px 8px 0 0;
-    position: relative;
-    margin: 12px auto;
-    box-shadow: 0 10px 25px #000;
-    transition: transform 0.15s;
-  }
-
-  .door-knob {
-    width: 16px;
-    height: 16px;
-    background: var(--gold);
-    border-radius: 50%;
-    position: absolute;
-    left: 16px;
-    top: 50%;
-  }
-
-  .shake {
-    animation: doorShake 0.4s ease;
-  }
-
-  .rooms-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
-    width: 100%;
-    max-width: 740px;
-    margin-top: 15px;
-  }
-
-  .room-card {
-    background: linear-gradient(180deg, #2e2116, #1d140d);
-    border: 2px solid var(--gold);
-    border-radius: 10px;
-    padding: 16px 12px;
-    cursor: pointer;
-    transition: 0.25s;
-    position: relative;
-  }
-
-  .room-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 18px rgba(200, 150, 62, 0.3);
-  }
-
-  .room-card.done {
-    border-color: #4caf50;
-    opacity: 0.75;
-  }
-
-  .room-icon {
-    font-size: 2.2rem;
-    display: block;
-    margin-bottom: 6px;
-  }
-
-  .parchment {
-    background: var(--paper);
-    color: var(--ink);
-    padding: 18px;
-    border-radius: 8px;
-    border: 3px solid #8c6239;
-    box-shadow: inset 0 0 25px #c4a472, 0 8px 20px rgba(0,0,0,0.7);
-    max-width: 660px;
-    width: 100%;
-    margin: 12px auto;
-    text-align: center;
-    font-size: 1.1rem;
-    line-height: 1.8;
-  }
-
-  .arabic-text {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #1c1209;
-    direction: rtl;
-  }
-
-  .clouds-container {
-    display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
-    margin: 15px 0;
-    max-width: 720px;
   }
-
-  .thought-cloud {
-    background: radial-gradient(circle, #354766 0%, #1d273b 100%);
-    border: 2px solid #7aa8ff;
-    color: #e8f1ff;
-    padding: 12px 18px;
-    border-radius: 30px;
-    cursor: pointer;
-    width: 290px;
-    font-size: 1rem;
-    box-shadow: 0 0 15px rgba(122, 168, 255, 0.3);
-    transition: 0.25s;
-  }
-
-  .thought-cloud:hover {
-    transform: scale(1.03);
-  }
-
-  .thought-cloud.selected {
-    background: radial-gradient(circle, #4f79c4 0%, #2b4470 100%);
-    border-color: #ffd166;
-    box-shadow: 0 0 20px #ffd166;
-  }
-
-  .match-table {
-    width: 100%;
-    max-width: 760px;
-    border-collapse: collapse;
-    margin: 8px auto;
-    background: rgba(25, 18, 12, 0.95);
-    color: var(--paper);
-  }
-
-  .match-table td, .match-table th {
-    border: 1px solid var(--gold);
-    padding: 7px 10px;
-    font-size: 1rem;
-    color: var(--paper);
-  }
-
-  .match-table th {
-    background: #2e2015;
-    color: var(--gold-light);
-  }
-
-  .match-table .arabic-text {
-    color: #fff3dc;
-    font-size: 1.2rem;
-  }
-
-  #bedroom-screen {
-    justify-content: flex-start;
-    overflow-y: auto;
-    max-height: 85vh;
-  }
-
-  .match-select {
-    padding: 4px 6px;
-    font-size: 0.95rem;
-    border-radius: 5px;
-    background: var(--paper);
-    color: var(--ink);
-    font-weight: bold;
-  }
-
-  .options-legend {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 5px;
-    background: #241911;
-    border: 1px solid var(--gold);
-    padding: 8px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    text-align: right;
-    margin-bottom: 10px;
-    width: 100%;
-    max-width: 760px;
-  }
-
-  #toast {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #22170e;
-    border: 2px solid var(--gold);
-    color: #fff;
-    padding: 10px 22px;
-    border-radius: 8px;
-    font-size: 1.05rem;
-    z-index: 999;
-    display: none;
-    box-shadow: 0 5px 20px #000;
-  }
-
-  .final-score-box {
-    background: var(--paper);
-    color: var(--ink);
-    border: 4px double var(--gold);
-    padding: 20px 35px;
-    border-radius: 12px;
-    font-size: 1.6rem;
-    font-weight: bold;
-    margin: 15px 0;
-    box-shadow: 0 0 30px rgba(200, 150, 62, 0.5);
-  }
-
-  .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-
-  .modal-box {
-    background: #1e150f;
-    border: 3px solid var(--gold);
-    padding: 25px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 500px;
-    max-height: 80vh;
-    overflow-y: auto;
-    text-align: center;
-    box-shadow: 0 10px 40px #000;
-  }
-
-  .ranking-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-  }
-
-  .ranking-table th, .ranking-table td {
-    border: 1px solid #573e23;
-    padding: 8px;
-    font-size: 0.95rem;
-  }
-
-  .rank-1 { color: #ffd700; font-weight: bold; }
-  .rank-2 { color: #c0c0c0; font-weight: bold; }
-  .rank-3 { color: #cd7f32; font-weight: bold; }
-
-  .top-icons-box {
-    position: absolute;
-    top: 15px;
-    left: 18px;
-    display: flex;
-    gap: 8px;
-    z-index: 20;
-  }
-
-  .top-icon-btn {
-    font-size: 1.4rem;
-    cursor: pointer;
-    background: rgba(24, 17, 11, 0.85);
-    border: 1px solid var(--gold);
-    border-radius: 10px;
+  .stage-pill {
     padding: 4px 10px;
-    transition: 0.2s;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    background: #232936;
+    color: var(--muted);
+    border: 1px solid #323a4b;
   }
-  .top-icon-btn:hover {
-    transform: scale(1.08);
+  .stage-pill.active {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    border-color: #fbbf24;
   }
-
+  .stats-bar {
+    display: flex;
+    gap: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    align-items: center;
+  }
+  .stat-box span { color: #fbbf24; }
+  .stat-box.err span { color: #f87171; }
+  .sound-btn, .rank-btn {
+    background: #232936;
+    color: #fbbf24;
+    border: 1px solid #3b4252;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 700;
+  }
+  .sound-btn:hover, .rank-btn:hover { background: #2d3444; }
+  .top-rank-bar {
+    display: flex;
+    justify-content: flex-start;
+    max-width: 820px;
+    margin: 14px auto 0;
+    padding: 0 16px;
+  }
+  .container {
+    max-width: 820px;
+    margin: 14px auto 24px;
+    padding: 0 16px 60px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid #2a303d;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+    animation: fadeIn 0.4s ease;
+  }
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
+    from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  @keyframes popIn {
-    0% { transform: scale(0.5); }
-    100% { transform: scale(1); }
+  .stages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 18px 0 22px;
   }
-  @keyframes doorShake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px) rotate(-2deg); }
-    50% { transform: translateX(8px) rotate(2deg); }
-    75% { transform: translateX(-4px); }
+  .stage-card {
+    background: #12151c;
+    border: 1px solid #2e3646;
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
   }
+  .stage-card.open {
+    border-color: #fbbf24;
+    background: #1d222d;
+  }
+  .stage-card.locked {
+    opacity: 0.65;
+  }
+  .stage-badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-top: 6px;
+    background: #282e3b;
+    color: #fbbf24;
+  }
+  .paper-box {
+    background: var(--paper);
+    color: var(--paper-ink);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin: 16px 0;
+    border-right: 6px solid #8b5a2b;
+    box-shadow: inset 0 0 25px rgba(139, 90, 43, 0.25);
+    font-family: 'Noto Naskh Arabic', serif;
+    font-size: 1.15rem;
+  }
+  .poem {
+    direction: rtl;
+    text-align: center;
+    font-size: 1.25rem;
+    line-height: 2.3;
+    font-weight: 600;
+  }
+  .poem-word {
+    display: inline-block;
+    padding: 0 8px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .poem-word:hover {
+    background: rgba(220, 38, 38, 0.14);
+  }
+  .red-circle {
+    display: inline-block;
+    border: 2.5px solid #dc2626 !important;
+    border-radius: 999px !important;
+    padding: 0 10px !important;
+    color: #991b1b !important;
+    background: rgba(220, 38, 38, 0.12) !important;
+    font-weight: 700;
+  }
+  h1, h2, h3 {
+    color: #fbbf24;
+    margin-top: 0;
+  }
+  .quote {
+    border-right: 3px solid var(--accent);
+    padding-right: 14px;
+    color: #fcd34d;
+    font-style: italic;
+    margin: 12px 0;
+  }
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #3b4252;
+    background: #0f131a;
+    color: #fff;
+    font-size: 1.05rem;
+    font-family: inherit;
+    margin: 8px 0 14px;
+  }
+  .lock-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    direction: ltr;
+    margin: 16px 0;
+  }
+  .lock-digit {
+    width: 56px !important;
+    height: 64px;
+    text-align: center;
+    font-size: 1.6rem !important;
+    font-weight: 800;
+    border: 2px solid #d97706 !important;
+  }
+  .btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 11px 20px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+    margin-top: 6px;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .option-btn {
+    display: block;
+    width: 100%;
+    text-align: right;
+    background: #222834;
+    color: #f3f4f6;
+    border: 1px solid #374151;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .option-btn:hover { border-color: #fbbf24; background: #2b3242; }
+  .option-btn.correct { background: rgba(22, 163, 74, 0.25); border-color: #22c55e; }
+  .option-btn.wrong { background: rgba(220, 38, 38, 0.25); border-color: #ef4444; }
+  .feedback {
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-top: 10px;
+    font-weight: 600;
+  }
+  .feedback.ok { background: rgba(22, 163, 74, 0.2); color: #86efac; border: 1px solid #16a34a; }
+  .feedback.err { background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid #dc2626; }
+  .notebook {
+    background: #fef9c3;
+    color: #1f2937;
+    border-radius: 12px;
+    padding: 16px 20px;
+    border-top: 8px solid #b45309;
+    margin-top: 16px;
+  }
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-box {
+    background: #181c23;
+    border: 1px solid #374151;
+    border-radius: 16px;
+    max-width: 520px;
+    width: 100%;
+    padding: 22px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .rank-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: #222834;
+    border: 1px solid #323a4b;
+  }
+  .rank-row.gold { background: rgba(250, 204, 21, 0.18); border-color: #facc15; color: #fef08a; font-weight: 800; }
+  .rank-row.silver { background: rgba(203, 213, 225, 0.16); border-color: #cbd5e1; color: #f1f5f9; font-weight: 700; }
+  .rank-row.bronze { background: rgba(217, 119, 6, 0.22); border-color: #d97706; color: #fed7aa; font-weight: 700; }
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
-
-<!-- مۆسیقای پاشبنەما -->
-<audio id="bg-music" loop></audio>
-
-<div id="toast"></div>
-
-<!-- مۆدالی ڕانکینگ -->
-<div id="ranking-modal" class="modal-overlay">
-  <div class="modal-box">
-    <h2 style="color:var(--gold-light); margin-top:0;">🏆 ڕانکینگی لێکۆڵەران</h2>
-    <table class="ranking-table">
-      <thead>
-        <tr style="background:#2d2016; color:var(--gold-light);">
-          <th>پلە</th>
-          <th>ناوی لێکۆڵەر</th>
-          <th>خاڵ</th>
-          <th>کات</th>
-        </tr>
-      </thead>
-      <tbody id="ranking-body"></tbody>
-    </table>
-    <br>
-    <button class="btn" onclick="closeModal('ranking-modal')">داخستن ❌</button>
+<div class="hud hidden" id="hud">
+  <div class="stages-bar">
+    <span class="stage-pill active">قۆناغی ١</span>
+    <span class="stage-pill">قۆناغی ٢</span>
+    <span class="stage-pill">قۆناغی ٣</span>
+    <span class="stage-pill">قۆناغی ٤</span>
+    <span class="stage-pill">قۆناغی ٥</span>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-box">خاڵ: <span id="scoreDisplay">0</span></div>
+    <div class="stat-box">کاتی پرسیار: <span id="qTimerDisplay">00:00</span></div>
+    <div class="stat-box">کاتی گشتی: <span id="totalTimerDisplay">00:00</span></div>
+    <div class="stat-box err">هەڵەکان: <span id="mistakesDisplay">0</span></div>
+    <button class="rank-btn" onclick="openRankModal()" title="ڕیزبەندی">🏆 ڕیزبەندی</button>
+    <button class="sound-btn" id="soundToggleBtn" onclick="toggleSound()">🔊 دەنگ چالاکە</button>
   </div>
 </div>
 
-<!-- مۆدالی سەنتینگ (Setting / Private Teacher) -->
-<div id="setting-modal" class="modal-overlay">
-  <div class="modal-box">
-    <h2 style="color:var(--gold-light); margin-top:0;">⚙️ سەنتینگی مامۆستا</h2>
-    
-    <div id="setting-login-box">
-      <p style="font-size:1rem; color:#d6c3a5;">بۆ چوونەژوورەوە بۆ بەشی تایبەت، کۆدی مامۆستا بنووسە:</p>
-      <input type="text" id="teacher-code-input" placeholder="کۆد (۸ رقمی)..." style="width:100%; max-width:250px;" />
-      <br>
-      <button class="btn" onclick="verifyTeacherCode()">پشکنینی کۆد 🔑</button>
-      <br><br>
-      <button class="btn btn-secondary" onclick="closeModal('setting-modal')">داخستن ❌</button>
-    </div>
+<div class="top-rank-bar" id="topRankBar">
+  <button class="rank-btn" onclick="openRankModal()" title="ڕیزبەندی">🏆 ڕیزبەندی</button>
+</div>
 
-    <div id="setting-admin-box" style="display:none; text-align:right;">
-      <p style="color:#81c784; font-weight:bold; text-align:center;">✅ بەخێر هاتیت مامۆستای بەڕێز!</p>
-      <label style="font-size:0.95rem; color:var(--gold-light);">لینکی فایلی دەنگی / مۆسیقای نوێ (MP3 یا OGG):</label>
-      <input type="text" id="music-url-input" placeholder="لینکی مۆسیقا لێرە دابنە..." style="width:100%; margin-top:6px;" />
-      <div style="text-align:center; margin-top:10px;">
-        <button class="btn" onclick="updateMusicSource()">پاشەکەوتکردن و گۆڕینی مۆسیقا 🎵</button>
-        <br><br>
-        <button class="btn btn-secondary" onclick="closeModal('setting-modal')">داخستن ❌</button>
-      </div>
+<div class="modal-backdrop hidden" id="rankModal" onclick="closeRankModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0;">🏆 ڕیزبەندی لێکۆڵەران</h3>
+      <button class="rank-btn" onclick="closeRankModal()">✕</button>
     </div>
+    <div id="rankListContainer"></div>
   </div>
 </div>
 
-<div id="game-container">
-  <div id="top-icons-start" class="top-icons-box">
-    <div class="top-icon-btn" title="ڕانکینگ" onclick="openModal('ranking-modal')">🏆</div>
-    <div class="top-icon-btn" title="سەنتینگ" onclick="openModal('setting-modal')">⚙️</div>
+<div class="container">
+  <div class="card" id="introScreen">
+    <h1>قۆناغی یەکەم: دۆسییەی خانووە کۆنەکە</h1>
+    <p>بەخێربێیت بۆ بەشی لێکۆڵینەوە نهێنییەکان. تکایە ناوی خۆت وەک لێکۆڵەر بنووسە:</p>
+    <label for="detectiveNameInput"><strong>ناوی لێکۆڵەر:</strong></label>
+    <input type="text" id="detectiveNameInput" placeholder="ناوی لێکۆڵەر بنووسە...">
+    <button class="btn" onclick="submitName()">چوونە ژوورەوە و بینینی قۆناغەکان</button>
   </div>
-
-  <div id="hud">
-    <div style="display:flex; align-items:center; gap:8px;">
-      <span style="cursor:pointer; font-size:1.4rem;" title="ڕانکینگ" onclick="openModal('ranking-modal')">🏆</span>
-      <span style="cursor:pointer; font-size:1.4rem; margin-right:5px;" title="سەنتینگ" onclick="openModal('setting-modal')">⚙️</span>
-      <div class="hud-badge">👤 <span id="hud-name">---</span></div>
-    </div>
-    <div id="inventory-bar">🎒 جانتا: <span id="inv-list" style="color:#aaa;">بەتاڵە</span></div>
-    <div>
-      <span class="hud-badge" style="margin-left: 5px;">⏱️ کات: <span id="hud-timer">00:00</span></span>
-      <button class="btn" style="padding: 4px 8px; font-size: 0.85rem; margin:0;" onclick="toggleMusic()" id="music-btn">🔊 مۆسیقا</button>
-      <span class="hud-badge" style="margin-right: 5px;">⭐ خاڵ: <span id="hud-score">10</span></span>
-    </div>
-  </div>
-
-  <!-- ١. شاشەی سەرەتا -->
-  <div id="start-screen" class="screen active">
-    <div class="vintage-frame">
-      <h1>🕯️ لێکۆڵەر</h1>
-      <p class="subtitle">نهێنییەکانی مێژوو و ئەدەب لە پشت دەرگا داخراوەکانەوە حەشاردراون...</p>
-      
-      <div id="step-start-btn">
-        <button class="btn" onclick="startTheGame()">دەستپێکردن بە گەشتە مێژووییەکەت</button>
+  <div class="card hidden" id="stagesMenu">
+    <h2>نەخشەی قۆناغەکانی لێکۆڵینەوە — لێکۆڵەر <span class="det-name"></span></h2>
+    <p>تەنها <strong>قۆناغی یەک</strong> کراوەیە؛ قۆناغەکانی تر بەم زووانە دەکرێنەوە.</p>
+    <div class="stages-grid">
+      <div class="stage-card open">
+        <strong>قۆناغی یەک</strong>
+        <div>دۆسییەی خانووە کۆنەکە</div>
+        <span class="stage-badge">کراوەیە</span>
       </div>
-
-      <div id="level-select-box" style="display:none; text-align:right;">
-        <p style="color:var(--gold-light); text-align:center; font-weight:bold; margin-bottom:12px;">مەرحەلەی یارییەکە هەڵبژێرە:</p>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <button class="btn" onclick="selectLevel(1)">مەرحەلەی ١: دۆسیەی معروف الرصافي (کراوەیە)</button>
-          <button class="btn btn-secondary" disabled>مەرحەلەی ٢: دۆسیەی نوێ (بەمزووانە دێت)</button>
-          <button class="btn btn-secondary" disabled>مەرحەلەی ٣: دۆسیەی نوێ (بەمزووانە دێت)</button>
-          <button class="btn btn-secondary" disabled>مەرحەلەی ٤: دۆسیەی نوێ (بەمزووانە دێت)</button>
-          <button class="btn btn-secondary" disabled>مەرحەلەی ٥: دۆسیەی نوێ (بەمزووانە دێت)</button>
-        </div>
+      <div class="stage-card locked">
+        <strong>قۆناغی دوو</strong>
+        <div>پاشماوەی نهێنی</div>
+        <span class="stage-badge">بەم زووانە دێ</span>
       </div>
-
-      <div id="step-name-input" style="display:none; margin-top:15px;">
-        <p style="font-size:1.1rem; color:var(--gold-light);">ناوی خۆت بە پیت و زمانی کوردی بنووسە:</p>
-        <input type="text" id="player-name-input" placeholder="بۆ نموونە: سارا، ئاری..." />
-        <br>
-        <button class="btn" onclick="enterOffice()">چوونەژوورەوە بۆ ئۆفیس</button>
+      <div class="stage-card locked">
+        <strong>قۆناغی سێ</strong>
+        <div>شوێنپێی کۆچ</div>
+        <span class="stage-badge">بەم زووانە دێ</span>
+      </div>
+      <div class="stage-card locked">
+        <strong>قۆناغی چوار</strong>
+        <div>پەڕەی ونبوو</div>
+        <span class="stage-badge">بەم زووانە دێ</span>
+      </div>
+      <div class="stage-card locked">
+        <strong>قۆناغی پێنج</strong>
+        <div>کۆتایی نهێنییەکە</div>
+        <span class="stage-badge">بەم زووانە دێ</span>
       </div>
     </div>
+    <button class="btn" onclick="startStage1()">دەستپێکردنی قۆناغی یەک</button>
   </div>
 
-  <!-- ٢. شاشەی ئۆفیسەکە -->
-  <div id="office-screen" class="screen">
-    <div style="font-size: 3.8rem; margin-bottom: 8px;">🏢📜</div>
-    <p style="color:#cbb89d;">(ئۆفیسی لێکۆڵینەوە - بەیانییەکی زوو)</p>
-    <button id="take-paper-btn" class="btn" onclick="partnerSpeaks()">📄 وەرگرتنی پەڕەکە لە هاوکارەکەت</button>
-    
-    <div id="office-dialogue" class="dialogue-box" style="display:none;">
-      <div class="speaker-tag">هاوکارەکەم</div>
-      <p id="partner-text" class="dialogue-text"></p>
-      <div style="text-align:left; margin-top:12px;">
-        <button class="btn" onclick="goToHouseDoor()">ڕۆیشتن بەرەو شوێنی دۆسیەکە 🚶‍♂️</button>
-      </div>
+  <div class="card hidden" id="scene1">
+    <h2>قۆناغی یەکەم: دۆسییەی خانووە کۆنەکە</h2>
+    <div id="part1_a">
+      <p>بەیانییەکی زوو بوو. ئاسمان بە هەورێکی ڕەش و قورس داپۆشرابوو و باران بەردەوام لە پەنجەرەی ئۆفیسەکەت دەدا. دەنگی باران و تیک‌تاکی کاتژمێرەکە تەنها دەنگەکانی ناو ئۆفیسەکەت بوون. بەرامبەر مێزەکەت دانیشتبوویت و بە بێزارییەوە سەیری دۆسییە کۆنەکانت دەکرد؛ ئەو ڕۆژەش وەک ئەوەی دیار بوو هیچ ڕووداوێکی جێی سەرنج ڕووی نەدەدا.</p>
+      <p>بەڵام هەموو شتێک لە چەند چرکەیەکدا گۆڕا.</p>
+      <button class="btn" onclick="showPart('part1_a','part1_b','transition')">بەردەوام بە</button>
+    </div>
+    <div id="part1_b" class="hidden">
+      <p>دەرگای ئۆفیسەکەت بە هێواشی کرایەوە. یەکێک لە هاوکارەکانت بە دۆسییەیەکی قاوەیی و کۆنەوە هاتە ژوورەوە. بەبێ ئەوەی زۆر قسە بکات، دۆسییەکەی لەسەر مێزەکەت دانا.</p>
+      <div class="quote">«سڵاو لێکۆڵەر <span class="det-name"></span>، ئەمە دۆسییەکەی ئەمڕۆیە. بیستوومە خانووەکە لە شوێنێکی دوورەدەستە... بەهیوای بەختێکی باش!»</div>
+      <p>پێش ئەوەی بتوانی پرسیاری لێ بکەیت، بە هێواشی لە ژوورەکە چووە دەرەوە.</p>
+      <button class="btn" onclick="showPart('part1_b','part1_c','paper')">بەردەوام بە</button>
+    </div>
+    <div id="part1_c" class="hidden">
+      <p>سەیری دۆسییەکەت کرد. هیچ ناونیشانێکی ڕوون، هیچ زانیارییەکی تەواو و هیچ وردەکارییەکی ئاسایی تێدا نەبوو. تەنها وێنەی خانووێکی کۆن و چەند وشەیەکی کورت.</p>
+      <div class="paper-box">«خانوویەک لەسەر گردێک، نزیک بەیروت. ماوەیەکی زۆرە بەجێهێڵراوە.»</div>
+      <p>بە دڵنیاییەوە دەزانی ئەمە تەنها سەردانێکی ئاسایی بۆ خانووێکی بەجێهێڵراو نییە. بۆچی دۆسییەکە بەو شێوەیە کەم‌ زانیارییە؟ بۆچی هیچ کەسێک بە وردی باس لە خاوەنەکەی ناکات؟</p>
+      <p>دۆسییەکەت داخست و بڕیارت دا خۆت بچیتە شوێنەکە.</p>
+      <button class="btn" onclick="goScene('scene1','scene2', false, 'transition')">بەڕێکەوتن بەرەو ناوچەکە</button>
     </div>
   </div>
-
-  <!-- ٣. شاشەی بەردەم دەرگای ماڵەکە -->
-  <div id="door-screen" class="screen">
-    <h2>بەردەم خانووە کۆنەکەی لای ڕووباری دیجلە</h2>
-    <p id="door-status" style="color:#d6c3a5;">دەرگاکە قورس و کۆنە، پێویستە پاڵی پێوە بنێیت...</p>
-    <div id="door-box" class="door-visual">
-      <div class="door-knob"></div>
+  <div class="card hidden" id="scene2">
+    <h2>گەیشتن بە خانووە بەجێهێڵراوەکە</h2>
+    <div id="part2_a">
+      <p>چەند کاتژمێرێک دواتر، دوای گەشتێکی درێژ و ماندووکەر، گەیشتیتە ناوچەکە.</p>
+      <p>هەوا ساردتر بوو. ڕێگاکە تەنگ و بەتاڵ بوو و تەنانەت دەنگی با لە نێوان دارە وشکەکاندا بە ڕوونی دەبیسترا. لە دوورەوە خانووەکەت دی.</p>
+      <p>لەسەر گردەکە بوو؛ وەک ئەوەی ساڵانێکە چاودێری ئەو ناوچەیە بکات.</p>
+      <button class="btn" onclick="showPart('part2_a','part2_b','creak')">بەردەوام بە</button>
     </div>
-    <button id="push-door-btn" class="btn" onclick="pushDoor()">داگرتن لەسەر دەرگاکە (٠ / ٣)</button>
-  </div>
-
-  <!-- ٤. هەڵبژاردنی ژوورەکان -->
-  <div id="hub-screen" class="screen">
-    <h2>ناو ماڵە کۆن و تۆزاوییەکە</h2>
-    <p style="color:#e0cfa9; font-size:1.1rem;">لە کام ژوور دەست پێ دەکەیت؟</p>
-    
-    <div class="rooms-grid">
-      <div class="room-card" id="card-kitchen" onclick="enterRoom('kitchen')">
-        <span class="room-icon">🍳</span>
-        <h3>چێشتخانە</h3>
-        <span id="status-kitchen" style="font-size:0.85rem; color:#f0c975;">کراوەیە</span>
-      </div>
-
-      <div class="room-card" id="card-hallway" onclick="enterRoom('hallway')">
-        <span class="room-icon">🏺</span>
-        <h3>ڕاڕەوەکە</h3>
-        <span id="status-hallway" style="font-size:0.85rem; color:#f0c975;">کراوەیە</span>
-      </div>
-
-      <div class="room-card" id="card-living" onclick="enterRoom('living')">
-        <span class="room-icon">📺</span>
-        <h3>میوان</h3>
-        <span id="status-living" style="font-size:0.85rem; color:#f0c975;">کراوەیە</span>
-      </div>
-
-      <div class="room-card" id="card-bedroom" onclick="enterRoom('bedroom')">
-        <span class="room-icon">🛏️</span>
-        <h3>نووستن</h3>
-        <span id="status-bedroom" style="font-size:0.85rem; color:#ff7b7b;">🔒 کلیلە (کلیلی شینی دەوێ)</span>
-      </div>
+    <div id="part2_b" class="hidden">
+      <p>دیواری خانووەکە ڕەنگی خۆی لەدەست دابوو، پەنجەرەکان تۆزاویی و دەرگاکەش نیوەشکاو بوو. هەموو شتێک ئەوەی نیشان دەدا کە ماوەیەکی زۆرە هیچ کەسێک لەوێ نەژیاوە.</p>
+      <p>دەرگاکەت بە هێواشی پاڵ پێوەنا و چوویتە ژوورەوە.</p>
+      <p><strong>قیژژژ...</strong> دەنگی دەرگاکە لە بێدەنگیی خانووەکەدا دەرکەوت. چەند چرکەیەک وەستایت. هیچ دەنگێک نەبوو.</p>
+      <p>بە وردی دەستت کرد بە پشکنینی خانووەکە. تەنها دوو ژووری هەبوو.</p>
+      <button class="btn" onclick="showPart('part2_b','part2_c','paper')">بەردەوام بە</button>
+    </div>
+    <div id="part2_c" class="hidden">
+      <h3>ژووری یەکەم:</h3>
+      <p>ژوورە سەرەکییەکە پڕ لە تەپ و تۆز بوو. کورسییەکان بە شێوەیەکی نامۆ لە دەوروبەری مێزەکە دانرابوون، وەک ئەوەی خێزانێک لەناکاو هەستابن و بێ ئەوەی هیچ شتێک لەگەڵ خۆیان ببەن، ماڵەکەیان بەجێهێشتبێت.</p>
+      <p>لەسەر مێزەکە چەند وێنەیەکت بینی. تۆزەکەت لەسەر وێنەکان پاک کردەوە.</p>
+      <p>وێنەکان خێزانی بوون؛ کوڕ و کچێکی گەنج، منداڵێکی ساوا، لەگەڵ ژن و پیاوێک کە لە تەمەنی جوامێریدا بوون. ماوەیەک سەیرت کرد. ئەو خێزانە لە وێنەکەدا بەختەوەر دیار بوون. بەڵام ئەوەی تووشی سەرسوڕمانی کردی، ئەوە بوو کە وێنەکە لەگەڵ ئەو ماڵە تاریک و بەجێهێڵراوەدا زۆر جیاواز بوو.</p>
+      <button class="btn" onclick="showPart('part2_c','part2_d','paper')">بەردەوام بە</button>
+    </div>
+    <div id="part2_d" class="hidden">
+      <p>وێنەکەت هەڵگێڕایەوە. لە پشتەوەی وێنەکە نووسرابوو: <strong>«لبنان»</strong> لەگەڵ ساڵێک، بەڵام بەهۆی کۆنی وێنەکەوە ساڵەکە بە تەواوی ڕوون نەبوو.</p>
+      <p>وێنەکەت خستە ناو جانتاکەت و بەردەوام بوویت لە پشکنین. لەسەر ڕەفەیەکی کۆن سندوقێکی بچووک و تۆزاویت بینی. هێناتە خوارەوە. قفڵ کرابوو. چوار بۆشایی لەسەر قفڵەکە هەبوو، دیار بوو بۆ کردنەوەی پێویستە ساڵێکی چوار ژمارەیی بنووسرێت.</p>
+      <div class="quote">«ساڵێک... بەڵکو ساڵی لەدایکبوونی یەکێک لە ئەندامانی خێزانەکە بێت.»</div>
+      <p>بیرت لە منداڵە ساواکەی ناو وێنەکە کردەوە. لەوانەیە ئەوە کلیلەکە بێت. سندوقەکەت هەڵگرت و خستتە ناو جانتاکەت.</p>
+      <button class="btn" onclick="goScene('scene2','scene3', true, 'thud')">چوونە ژووری دووەم</button>
     </div>
   </div>
 
-  <!-- ٥. ژووری چێشتخانە -->
-  <div id="kitchen-screen" class="screen">
-    <h2>🍳 چێشتخانە تۆزاوییەکە</h2>
-    <div id="kitchen-content" style="width:100%;"></div>
-    <button class="btn btn-secondary" style="margin-top:12px;" onclick="backToHub()">↩️ گەڕانەوە بۆ هەڵبژاردنی ژوور</button>
-  </div>
-
-  <!-- ٦. ژووری میوان -->
-  <div id="living-screen" class="screen">
-    <h2>📺 ژووری میوان</h2>
-    <div id="living-content" style="width:100%;"></div>
-    <button class="btn btn-secondary" style="margin-top:12px;" onclick="backToHub()">↩️ گەڕانەوە بۆ هەڵبژاردنی ژوور</button>
-  </div>
-
-  <!-- ٧. ڕاڕەوەکە -->
-  <div id="hallway-screen" class="screen">
-    <h2>🏺 ڕاڕەوەکە</h2>
-    <div id="hallway-content" style="width:100%;"></div>
-    <button class="btn btn-secondary" style="margin-top:12px;" onclick="backToHub()">↩️ گەڕانەوە بۆ هەڵبژاردنی ژوور</button>
-  </div>
-
-  <!-- ٨. ژووری نووستن -->
-  <div id="bedroom-screen" class="screen">
-    <h2>🛏️ ژووری نووستن</h2>
-    <div id="bedroom-content" style="width:100%;"></div>
-  </div>
-
-  <!-- ٩. شاشەی کۆتایی -->
-  <div id="win-screen" class="screen">
-    <div class="vintage-frame">
-      <div style="font-size:3.2rem;">🏆📜✨</div>
-      <h1 style="font-size:1.9rem;">پیرۆزە لێکۆڵەر <span id="win-player-name"></span>!</h1>
-      <p style="font-size:1.15rem; color:var(--paper);">لێکۆڵینەوەی ئەمڕۆشت بە سەرکەوتوویی تەواو کرد!</p>
-      
-      <div class="final-score-box">
-        <div>⭐ خاڵی کۆکراوە: <span id="final-score-display" style="color:var(--crimson);">10</span></div>
-        <div style="font-size:1.2rem; margin-top:8px;">⏱️ کاتی پێویست: <span id="final-time-display">00:00</span></div>
-      </div>
-
-      <button class="btn" onclick="location.reload()">دووبارەکردنەوەی یارییەکە 🔄</button>
+  <div class="card hidden" id="scene3">
+    <h3>ژووری دووەم:</h3>
+    <div id="part3_a">
+      <p>کاتێک چوویتە ژووری دووەم، هەستێکی جیاوازت لا دروست بوو. لێرە هەموو شتێک بە شێوەیەکی نامۆ ڕێکخراو بوو. کانتۆرێک لە تەنیشت دیوارەکە بوو، چەند دۆشەکێک لەسەر زەوی و چەند کتێبێکی کۆنیش کە بە شێوەیەکی پەرت‌وبڵاو لەسەر مێزەکە دانرابوون.</p>
+      <button class="btn" onclick="showPart('part3_a','part3_b','transition')">بەردەوام بە</button>
     </div>
+    <div id="part3_b" class="hidden">
+      <p>لە کاتی پشکنینی ژوورەکەدا، سەرنجت کەوتە سەر نووسینێک لە تەنیشت دەرگاکە. نزیک بوویتەوە و بە وردی خوێندتەوە:</p>
+      <div class="paper-box">«کۆتا ڕۆژم لەم وڵاتە، ساڵی ١٩٠١. تەمەنم ١١ ساڵ.»</div>
+      <p>چرکەیەک وەستایت. ئەمە چی بوو؟ کێ ئەم نووسینەی نووسیوە؟ بۆچی تەمەنی خۆی لەگەڵ ساڵی جێهێشتنی وڵاتەکەی نووسیوە؟</p>
+      <p>سەیری سندوقەکەت کردەوە و ژمارەکانت لەگەڵ زانیارییەکانی نووسینەکە بەراورد کرد. کۆدی چوار ژمارەیی (ساڵی لەدایکبوون) بنووسە بۆ کردنەوەی سندوقەکە:</p>
+      <div class="lock-inputs">
+        <input class="lock-digit" id="d1" maxlength="1" oninput="moveNext(this,'d2')">
+        <input class="lock-digit" id="d2" maxlength="1" oninput="moveNext(this,'d3')">
+        <input class="lock-digit" id="d3" maxlength="1" oninput="moveNext(this,'d4')">
+        <input class="lock-digit" id="d4" maxlength="1">
+      </div>
+      <button class="btn" onclick="checkLock()">کردنەوەی قفڵی سندوقەکە</button>
+      <div id="lockFeedback" class="feedback hidden"></div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="scene4">
+    <h2>پەڕە کۆنەکەی ناو سندوقەکە</h2>
+    <p><strong>کلیک!</strong> قوفڵەکە کرایەوە. ناو سندوقەکە تەنها پەڕەیەکی کۆن بوو. پەڕەکەت بە وریایی هێنایە دەرەوە و کردتەوە. لەسەری شیعرێکی عەرەبی نووسرابوو:</p>
+    <div class="paper-box poem">
+      السحب تركض في الفضاء الرحب ركض الخائفين<br>
+      والشمس تبدو خلفها صفراء <span class="poem-word" data-target="عاصبة الجبين" onclick="circleWord(this)">عاصبة الجبين</span><br>
+      والبحر <span class="poem-word" data-target="ساج" onclick="circleWord(this)">ساج</span> صامت فيه <span class="poem-word" data-target="خشوع" onclick="circleWord(this)">خشوع</span> <span class="poem-word" data-target="الزاهدين" onclick="circleWord(this)">الزاهدين</span><br>
+      لكينما عليك باهيتتان في الأفق البعيد<br>
+      سلمى بماذا تفكرين؟<br>
+      سلمى بماذا تحلمين؟
+    </div>
+    <p>دوای ئەوەی شیعرەکەت خوێندەوە، هەستت کرد هەندێک وشە زۆر قورسن، بۆیە بە خۆتت وت:</p>
+    <div class="quote">«ئەو وشانەی بەلامەوە قورسە، دەورەیان بە بازنەی سوور ئەکێشم و مرادفەکەکانیان ئەنووسم لەسەر دەفتەرەکەم، تا بۆم ئاسانتر بێت.»</div>
+    <p id="circleHint"><strong>هەنگاو:</strong> خۆت کلیک لەسەر ئەو ٤ وشە قورسە بکە لەناو شیعرەکەدا تا بازنەی سووریان بۆ بکێشرێت و دەفتەرەکەت بکرێتەوە:</p>
+    <div id="circleFeedback" class="feedback hidden"></div>
+
+    <div id="vocabSection" class="hidden">
+      <div id="vocabQuizArea"></div>
+      <div class="notebook">
+        <strong>📓 دەفتەری لێکۆڵەر <span class="det-name"></span> (وشە تۆمارکراوەکان):</strong>
+        <ul id="notebookList"></ul>
+      </div>
+    </div>
+  </div>
+  <div class="card hidden" id="scene5">
+    <h2>پرسیاری لێکۆڵینەوە — ٠١</h2>
+    <div id="part5_a">
+      <p>لەو ساتەدا بیرت لەو نووسینە کۆنە کردەوە: <em>«کۆتا ڕۆژم لەم وڵاتە، ساڵی ١٩٠١. تەمەنی ١١ ساڵم بوو.»</em></p>
+      <p>ئەگەر ئەو کەسە لە تەمەنی یانزە ساڵیدا ئەو وڵاتەی بەجێهێشتبێت، لە ساڵی <strong>١٨٩٠</strong> لەدایکبووە. هەروەها، بەهۆی دۆخی ماڵەکەیانەوە پێدەچوو خێزانەکە دەوڵەمەند نەبووبن. کەواتە ئەگەری ئەوە هەیە بۆ وڵاتێکی نزیک کۆچیان کردبێت.</p>
+      <button class="btn" onclick="showPart('part5_a','part5_b','paper')">بەردەوام بە</button>
+    </div>
+    <div id="part5_b" class="hidden">
+      <p><strong>ئێستا کاتی بڕیاردانە:</strong><br>
+      ئەم ماڵە لە وڵاتی <strong>لبنان</strong> بووە و نزیکترین وڵات لێوەی کامەیە؟</p>
+      <div id="finalOptions">
+        <button class="option-btn" onclick="checkFinalCountry('أ', this)">أ- مغريب</button>
+        <button class="option-btn" onclick="checkFinalCountry('ب', this)">ب- مصر</button>
+        <button class="option-btn" onclick="checkFinalCountry('ج', this)">ج- قطر</button>
+        <button class="option-btn" onclick="checkFinalCountry('د', this)">د- جزائر</button>
+      </div>
+      <div id="finalFeedback" class="feedback hidden"></div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="scene6">
+    <h2>بڕیارێکی دروست!</h2>
+    <div class="quote">«کەواتە، بۆ ئەوەی زانیاریی زیاتر دەست بکەوێت، دەبێت بچیت بۆ میسر.»</div>
+    <p style="font-size:1.3rem; font-weight:800; color:#fbbf24;">شوێنی داهاتوو: میسر 🇪🇬</p>
+    <p>بەڵام... ئایا ئەو خێزانە بەڕاستی بۆچی لبنان و ماڵەکەیان بەجێهێشت؟</p>
+    <div class="paper-box" id="finalReport"></div>
   </div>
 </div>
 
 <script>
-  let state = {
-    playerName: "",
-    score: 10,
-    doorPushes: 0,
-    hasRoundBox: false,
-    hasGreenKey: false,
-    hasBlueKey: false,
-    kitchenDone: false,
-    livingDone: false,
-    hallwayDone: false,
-    selectedClouds: [],
-    cloudStage: 1,
-    secondsElapsed: 0,
-    timerInterval: null
+  let detectiveName = "لێکۆڵەر";
+  let score = 0;
+  let mistakes = 0;
+  let totalSeconds = 0;
+  let questionSeconds = 0;
+  let mainInterval = null;
+  let currentVocabIdx = 0;
+  let soundEnabled = true;
+  let rankings = [];
+
+  const SFX_URLS = {
+    button: "sfx/button.mp3",
+    creak: "sfx/door_creak.mp3",
+    thud: "sfx/thud.mp3",
+    paper: "sfx/paper_turn.mp3",
+    write: "sfx/pencil_write.mp3",
+    select: "sfx/select_answer.mp3",
+    correct: "sfx/correct.mp3",
+    incorrect: "sfx/incorrect.mp3",
+    unlock: "sfx/unlock.mp3",
+    transition: "sfx/transition.mp3"
   };
 
-  // --- سیستەمی دەنگی نەرم و بێ "بزە" بە Web Audio API ---
-  let audioCtx = null;
-  let musicPlaying = false;
-  let bgSynthTimer = null;
-  let useCustomAudioFile = false;
+  const audioPool = {};
+  Object.keys(SFX_URLS).forEach(key => {
+    const a = new Audio(SFX_URLS[key]);
+    a.preload = "auto";
+    a.volume = 0.65;
+    audioPool[key] = a;
+  });
 
-  function initAudioContext() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const targetWords = ["عاصبة الجبين", "ساج", "خشوع", "الزاهدين"];
+  let circledWords = new Set();
+
+  const vocabQuestions = [
+    {
+      word: "عاصبة الجبين",
+      options: [
+        { key: "ا", text: "ا- ساکن" },
+        { key: "ب", text: "ب- الحدود" },
+        { key: "ج", text: "ج- ما بعد الشباب و قبل الشيخوخة" },
+        { key: "د", text: "د- مشدودة الجبين بمنديل" }
+      ],
+      correct: "د",
+      meaning: "مشدودة الجبين بمنديل"
+    },
+    {
+      word: "ساج",
+      options: [
+        { key: "ا", text: "ا- شدة الظلام" },
+        { key: "ب", text: "ب- التخوم" },
+        { key: "ج", text: "ج- ساكن" },
+        { key: "د", text: "د- الدجى" }
+      ],
+      correct: "ج",
+      meaning: "ساكن"
+    },
+    {
+      word: "خشوع",
+      options: [
+        { key: "ا", text: "ا- هو الذي يصلي من كل قلبه" },
+        { key: "ب", text: "ب- هو غير راغب في الملاذات هذه الدنيا" },
+        { key: "ج", text: "ج- تأفل" },
+        { key: "د", text: "د- الكهولة" }
+      ],
+      correct: "ا",
+      meaning: "هو الذي يصلي من كل قلبه"
+    },
+    {
+      word: "الزاهدين",
+      options: [
+        { key: "ا", text: "ا- مشدودة الجبين بمنديل" },
+        { key: "ب", text: "ب- هو الذي يصلي من كل قلبه" },
+        { key: "ج", text: "ج- هو غير راغب في الملاذات هذه الدنيا" },
+        { key: "د", text: "د- بعد الشباب و قبل الشيخوخة" }
+      ],
+      correct: "ج",
+      meaning: "هو غير راغب في الملاذات هذه الدنيا"
     }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
+  ];
+
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('soundToggleBtn').textContent = soundEnabled ? "🔊 دەنگ چالاکە" : "🔇 دەنگ کوژاوە";
   }
 
-  // مۆسیقای پاشبنەمای سینەمایی، نهێنی و هاندەر (Mysterious, Curious & Motivational)
-  function playMysteriousStep() {
-    if (!musicPlaying || useCustomAudioFile || !audioCtx) return;
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-
-    // ئاوازێکی نهێنی و سەرنجڕاکێش بە دوو جوملەی مۆسیقی (١٦ هەنگاو) کە هەستی گەڕان و هاندان دەدات
-    // Scale: D Harmonic Minor / Hijaz mystery (D, E, F, G, A, Bb, C#, D, E, F)
-    const arpeggio = [
-      293.66, 440.00, 349.23, 523.25, 466.16, 440.00, 349.23, 329.63,
-      293.66, 440.00, 554.37, 587.33, 466.16, 440.00, 392.00, 329.63
-    ];
-    // هێڵی باسی هاندەر و قووڵ
-    const bassLine = [
-      146.83, 0,      146.83, 174.61, 116.54, 0,      116.54, 130.81,
-      146.83, 0,      220.00, 174.61, 196.00, 0,      164.81, 130.81
-    ];
-    // ئەکۆردی نەرمی پاشبنەما (Pad) لە هەر ٤ هەنگاو جارێک
-    const padChords = {
-      0:  [146.83, 220.00, 349.23], // Dm
-      4:  [116.54, 174.61, 349.23], // Bb
-      8:  [146.83, 220.00, 277.18], // Dm(maj7) - mysterious
-      12: [196.00, 293.66, 466.16]  // Gm - motivational lift
-    };
-
-    const step = (playMysteriousStep.step || 0) % 16;
-    const mFreq = arpeggio[step];
-    const bFreq = bassLine[step];
-    const now = audioCtx.currentTime;
-
-    // ١. ئاوازی سەرەکی (پەنجەلێدانی نەرم و بلوری - Harp/Celesta feel)
-    if (mFreq > 0) {
-      const mOsc = audioCtx.createOscillator();
-      const mSub = audioCtx.createOscillator();
-      const mFilter = audioCtx.createBiquadFilter();
-      const mGain = audioCtx.createGain();
-
-      mOsc.type = 'sine';
-      mOsc.frequency.setValueAtTime(mFreq, now);
-
-      mSub.type = 'triangle';
-      mSub.frequency.setValueAtTime(mFreq * 2, now); // هارمۆنیکی ناسک
-
-      const subGain = audioCtx.createGain();
-      subGain.gain.setValueAtTime(0.012, now);
-      subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
-
-      mFilter.type = 'lowpass';
-      mFilter.frequency.setValueAtTime(1400, now);
-      mFilter.frequency.exponentialRampToValueAtTime(550, now + 0.65);
-
-      mGain.gain.setValueAtTime(0.0001, now);
-      mGain.gain.linearRampToValueAtTime(0.055, now + 0.025);
-      mGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.72);
-
-      mOsc.connect(mFilter);
-      mSub.connect(subGain);
-      subGain.connect(mFilter);
-      mFilter.connect(mGain);
-      mGain.connect(audioCtx.destination);
-
-      mOsc.start(now);
-      mSub.start(now);
-      mOsc.stop(now + 0.75);
-      mSub.stop(now + 0.4);
-    }
-
-    // ٢. دەنگی باسی هاندەر و نهێنی (Pulse)
-    if (bFreq > 0) {
-      const bOsc = audioCtx.createOscillator();
-      const bFilter = audioCtx.createBiquadFilter();
-      const bGain = audioCtx.createGain();
-
-      bOsc.type = 'sine';
-      bOsc.frequency.setValueAtTime(bFreq, now);
-
-      bFilter.type = 'lowpass';
-      bFilter.frequency.setValueAtTime(280, now);
-
-      bGain.gain.setValueAtTime(0.0001, now);
-      bGain.gain.linearRampToValueAtTime(0.075, now + 0.04);
-      bGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
-
-      bOsc.connect(bFilter);
-      bFilter.connect(bGain);
-      bGain.connect(audioCtx.destination);
-
-      bOsc.start(now);
-      bOsc.stop(now + 0.58);
-    }
-
-    // ٣. ئەکۆردی گەرم و سینەمایی (Ambient Pad) بۆ هەستی قووڵی و کنجکاوی
-    if (padChords[step]) {
-      padChords[step].forEach(pFreq => {
-        const pOsc = audioCtx.createOscillator();
-        const pFilter = audioCtx.createBiquadFilter();
-        const pGain = audioCtx.createGain();
-
-        pOsc.type = 'sine';
-        pOsc.frequency.setValueAtTime(pFreq, now);
-
-        pFilter.type = 'lowpass';
-        pFilter.frequency.setValueAtTime(600, now);
-
-        pGain.gain.setValueAtTime(0.0001, now);
-        pGain.gain.linearRampToValueAtTime(0.022, now + 0.45);
-        pGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.85);
-
-        pOsc.connect(pFilter);
-        pFilter.connect(pGain);
-        pGain.connect(audioCtx.destination);
-
-        pOsc.start(now);
-        pOsc.stop(now + 1.9);
-      });
-    }
-
-    playMysteriousStep.step = step + 1;
-  }
-
-  function startBgMusic() {
-    initAudioContext();
-    let savedMusic = localStorage.getItem("custom_game_music");
-    const musicElem = document.getElementById("bg-music");
-
-    if (savedMusic && savedMusic.trim() !== "") {
-      useCustomAudioFile = true;
-      musicElem.src = savedMusic.trim();
-      musicElem.load();
-      musicElem.play().then(() => {
-        musicPlaying = true;
-        updateMusicButton();
-      }).catch(() => {
-        useCustomAudioFile = false;
-        runSynthMusic();
-      });
-    } else {
-      useCustomAudioFile = false;
-      runSynthMusic();
-    }
-  }
-
-  function runSynthMusic() {
-    musicPlaying = true;
-    updateMusicButton();
-    if (bgSynthTimer) clearInterval(bgSynthTimer);
-    playMysteriousStep();
-    bgSynthTimer = setInterval(playMysteriousStep, 460);
-  }
-
-  function stopBgMusic() {
-    musicPlaying = false;
-    updateMusicButton();
-    if (bgSynthTimer) clearInterval(bgSynthTimer);
-    const musicElem = document.getElementById("bg-music");
-    musicElem.pause();
-  }
-
-  function updateMusicButton() {
-    const btn = document.getElementById("music-btn");
-    if (btn) btn.textContent = musicPlaying ? "🔊 مۆسیقا" : "🔇 مۆسیقا";
-  }
-
-  // دەنگە کارپێکراوەکانی نەرم و سروشتی (بێ "بزە")
   function playSFX(type) {
-    initAudioContext();
-    if (!audioCtx) return;
-
-    const now = audioCtx.currentTime;
-
-    if (type === 'sfx-door') {
-      // دەنگی پاڵنانی دەرگای کۆن: لێدانێکی نەرمی دار + خڵیسانی قورسی گەرم
-      const thud = audioCtx.createOscillator();
-      const thudGain = audioCtx.createGain();
-      thud.type = 'sine';
-      thud.frequency.setValueAtTime(125, now);
-      thud.frequency.exponentialRampToValueAtTime(42, now + 0.25);
-
-      thudGain.gain.setValueAtTime(0.24, now);
-      thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.27);
-
-      thud.connect(thudGain);
-      thudGain.connect(audioCtx.destination);
-      thud.start(now);
-      thud.stop(now + 0.28);
-
-      // دەنگی نەرمی چوونەناوەوە / خڵیسان (filtered noise)
-      const bufferSize = Math.floor(audioCtx.sampleRate * 0.25);
-      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.4));
-      }
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = buffer;
-
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(420, now);
-
-      const nGain = audioCtx.createGain();
-      nGain.gain.setValueAtTime(0.12, now);
-      nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-
-      noise.connect(filter);
-      filter.connect(nGain);
-      nGain.connect(audioCtx.destination);
-      noise.start(now);
-    } else if (type === 'sfx-stumble') {
-      // دەنگی هەڵکەوتنی قاچ لە شتێک: دەنگێکی قورسی نەرمی کورت
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(150, now);
-      osc.frequency.exponentialRampToValueAtTime(38, now + 0.22);
-
-      gain.gain.setValueAtTime(0.25, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(now);
-      osc.stop(now + 0.25);
-    } else if (type === 'sfx-search') {
-      // دەنگی نەرمی گەڕان یان هەڵگرتن (دوو نۆتی نەرمی پیانۆ/زەنگ)
-      [523.25, 659.25].forEach((freq, idx) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + idx * 0.09);
-        gain.gain.setValueAtTime(0.001, now + idx * 0.09);
-        gain.gain.linearRampToValueAtTime(0.1, now + idx * 0.09 + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.18);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now + idx * 0.09);
-        osc.stop(now + idx * 0.09 + 0.2);
-      });
-    } else if (type === 'sfx-click') {
-      // کلیکێکی زۆر نەرم و پاک
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(600, now);
-      osc.frequency.exponentialRampToValueAtTime(380, now + 0.045);
-
-      gain.gain.setValueAtTime(0.07, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(now);
-      osc.stop(now + 0.055);
-    }
+    if (!soundEnabled) return;
+    const base = audioPool[type];
+    if (!base) return;
+    const clip = base.cloneNode();
+    clip.volume = base.volume;
+    clip.play().catch(() => {});
   }
 
-  function toggleMusic() {
-    if (musicPlaying) {
-      stopBgMusic();
+  function formatTime(sec) {
+    const m = String(Math.floor(sec / 60)).padStart(2, '0');
+    const s = String(sec % 60).padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  function openRankModal() {
+    playSFX('button');
+    const list = [...rankings].sort((a, b) => (b.score - a.score) || (a.time - b.time));
+    const container = document.getElementById('rankListContainer');
+    if (list.length === 0) {
+      container.innerHTML = `<p style="color:#9ca3af; margin:0;">هێشتا هیچ تەلەبەیەک تاقیکردنەوەکەی تەواو نەکردووە.</p>`;
     } else {
-      startBgMusic();
+      container.innerHTML = list.map((item, i) => {
+        let medal = `#${i + 1}`;
+        let cls = '';
+        if (i === 0) { medal = '🥇 #1'; cls = 'gold'; }
+        else if (i === 1) { medal = '🥈 #2'; cls = 'silver'; }
+        else if (i === 2) { medal = '🥉 #3'; cls = 'bronze'; }
+        return `<div class="rank-row ${cls}">
+          <span>${medal} — ${item.name}</span>
+          <span>${item.score} خاڵ | ${formatTime(item.time)}</span>
+        </div>`;
+      }).join('');
     }
+    document.getElementById('rankModal').classList.remove('hidden');
   }
 
-  function startTheGame() {
-    startBgMusic();
-    playSFX("sfx-click");
-    document.getElementById("step-start-btn").style.display = "none";
-    document.getElementById("level-select-box").style.display = "block";
+  function closeRankModal(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('rankModal').classList.add('hidden');
   }
 
-  function selectLevel(lvl) {
-    playSFX("sfx-click");
-    if (lvl === 1) {
-      document.getElementById("level-select-box").style.display = "none";
-      document.getElementById("step-name-input").style.display = "block";
-      setTimeout(() => document.getElementById("player-name-input").focus(), 100);
-    }
+  function updateHUD() {
+    document.getElementById('scoreDisplay').textContent = score;
+    document.getElementById('mistakesDisplay').textContent = mistakes;
+    document.getElementById('qTimerDisplay').textContent = formatTime(questionSeconds);
+    document.getElementById('totalTimerDisplay').textContent = formatTime(totalSeconds);
   }
 
-  function showToast(msg, isError = false) {
-    const t = document.getElementById("toast");
-    t.textContent = msg;
-    t.style.borderColor = isError ? "#ff5252" : "#4caf50";
-    t.style.display = "block";
-    clearTimeout(window.toastTimer);
-    window.toastTimer = setTimeout(() => { t.style.display = "none"; }, 3000);
+  function submitName() {
+    const input = document.getElementById('detectiveNameInput').value.trim();
+    if (!input) { alert("تکایە ناوی لێکۆڵەر بنووسە!"); return; }
+    detectiveName = input;
+    document.querySelectorAll('.det-name').forEach(el => el.textContent = detectiveName);
+    playSFX('button');
+    document.getElementById('introScreen').classList.add('hidden');
+    document.getElementById('stagesMenu').classList.remove('hidden');
   }
 
-  function updateScore(isCorrect) {
-    if (isCorrect) {
-      state.score += 1;
-    } else {
-      state.score -= 2;
-      if (state.score < 0) state.score = 0;
-    }
-    document.getElementById("hud-score").textContent = state.score;
-  }
-
-  function updateInventory() {
-    let items = [];
-    if (state.hasRoundBox && !state.hasBlueKey) items.push("📦 بۆکسی خڕ");
-    if (state.hasGreenKey) items.push("🟢 کلیلی سەوز");
-    if (state.hasBlueKey) items.push("🔵 کلیلی شین");
-    const invEl = document.getElementById("inv-list");
-    if (items.length === 0) {
-      invEl.innerHTML = '<span style="color:#aaa;">بەتاڵە</span>';
-    } else {
-      invEl.innerHTML = items.map(i => `<span class="inv-item">${i}</span>`).join(" ");
-    }
-  }
-
-  function showScreen(id) {
-    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-  }
-
-  function isKurdishName(str) {
-    const hasEnglishOrNumbers = /[A-Za-z0-9]/.test(str);
-    const hasKurdishLetters = /[\u0600-\u06FF\u0750-\u077F]/.test(str);
-    return !hasEnglishOrNumbers && hasKurdishLetters;
-  }
-
-  function enterOffice() {
-    const nameInput = document.getElementById("player-name-input");
-    const name = nameInput.value.trim();
-    if (!name) {
-      showToast("تکایە ناوەکەت بنووسە!", true);
-      return;
-    }
-    if (!isKurdishName(name)) {
-      showToast("تکایە تەنها پیت و زمانی کوردی بەکاربهێنە (بێ ئینگلیزی و ژمارە)!", true);
-      return;
-    }
-    playSFX("sfx-click");
-    state.playerName = name;
-    document.getElementById("hud-name").textContent = name;
-    document.getElementById("top-icons-start").style.display = "none";
-    document.getElementById("hud").style.display = "flex";
-    
-    state.secondsElapsed = 0;
-    if (state.timerInterval) clearInterval(state.timerInterval);
-    state.timerInterval = setInterval(() => {
-      state.secondsElapsed++;
-      let m = Math.floor(state.secondsElapsed / 60);
-      let s = state.secondsElapsed % 60;
-      document.getElementById("hud-timer").textContent = 
-        (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+  function startStage1() {
+    playSFX('transition');
+    document.getElementById('topRankBar').classList.add('hidden');
+    document.getElementById('stagesMenu').classList.add('hidden');
+    document.getElementById('hud').classList.remove('hidden');
+    document.getElementById('scene1').classList.remove('hidden');
+    mainInterval = setInterval(() => {
+      totalSeconds++;
+      questionSeconds++;
+      updateHUD();
     }, 1000);
-
-    showScreen("office-screen");
   }
 
-  function partnerSpeaks() {
-    playSFX("sfx-click");
-    document.getElementById("take-paper-btn").style.display = "none";
-    const box = document.getElementById("office-dialogue");
-    box.style.display = "block";
-    const text = `«سڵاو ${state.playerName}، ئەمە دۆسییەی ئەمڕۆیە، لەلای ڕووباری دیجلەیە خانووەکە، بەختێکی باش.»`;
-    let i = 0;
-    const target = document.getElementById("partner-text");
-    target.textContent = "";
-    const interval = setInterval(() => {
-      target.textContent += text[i];
-      i++;
-      if (i >= text.length) clearInterval(interval);
-    }, 28);
+  function showPart(hideId, showId, sfx = 'button') {
+    playSFX(sfx);
+    document.getElementById(hideId).classList.add('hidden');
+    document.getElementById(showId).classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function goToHouseDoor() {
-    playSFX("sfx-click");
-    showScreen("door-screen");
+  function goScene(fromId, toId, resetQTimer = false, sfx = 'transition') {
+    playSFX(sfx);
+    document.getElementById(fromId).classList.add('hidden');
+    document.getElementById(toId).classList.remove('hidden');
+    if (resetQTimer) questionSeconds = 0;
+    updateHUD();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function pushDoor() {
-    state.doorPushes++;
-    playSFX("sfx-door");
-    const door = document.getElementById("door-box");
-    door.classList.remove("shake");
-    void door.offsetWidth;
-    door.classList.add("shake");
+  function moveNext(el, nextId) {
+    el.value = el.value.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+    if (el.value.length === 1 && nextId) document.getElementById(nextId).focus();
+  }
 
-    const btn = document.getElementById("push-door-btn");
-    if (state.doorPushes < 3) {
-      btn.textContent = `داگرتن لەسەر دەرگاکە (${state.doorPushes} / ٣)`;
-      showToast("دەرگاکە گیر بووە، دووبارە پاڵی پێوە بنێ!");
+  function awardCorrect() {
+    const earned = questionSeconds < 60 ? 2 : 1;
+    score += earned;
+    questionSeconds = 0;
+    updateHUD();
+    return earned;
+  }
+
+  function penalizeWrong() {
+    mistakes++;
+    score -= 2;
+    let extraNote = "";
+    if (mistakes === 3) {
+      score -= 4;
+      extraNote = " (بەهۆی گەیشتن بە ٣ هەڵە، ٤ خاڵی دیکەش شکا!)";
+    }
+    updateHUD();
+    return extraNote;
+  }
+
+  function checkLock() {
+    playSFX('select');
+    const code = ['d1','d2','d3','d4'].map(id => document.getElementById(id).value.trim()).join('');
+    const fb = document.getElementById('lockFeedback');
+    fb.classList.remove('hidden', 'ok', 'err');
+    if (code === '1890') {
+      playSFX('unlock');
+      const pts = awardCorrect();
+      fb.classList.add('ok');
+      fb.textContent = `ئافەرین لێکۆڵەر ${detectiveName}! کۆدەکە (١٨٩٠) ڕاستە. (+${pts} خاڵ)`;
+      setTimeout(() => {
+        goScene('scene3', 'scene4', true, 'paper');
+      }, 1200);
     } else {
-      btn.disabled = true;
-      btn.textContent = "دەرگاکە کرایەوە! 🚪";
-      showToast("دەرگاکە بە دەنگێکی قورس کرایەوە...");
-      setTimeout(() => showScreen("hub-screen"), 1000);
+      playSFX('incorrect');
+      const extra = penalizeWrong();
+      fb.classList.add('err');
+      fb.textContent = `کۆدەکە هەڵەیە! (١٩٠١ - ١١ = ؟) -٢ خاڵ${extra}`;
     }
   }
 
-  function enterRoom(room) {
-    const gameContainer = document.getElementById("game-container");
-    if (room === "kitchen") {
-      if (state.kitchenDone) { showToast("ئەم ژوورەت تەواو کردووە!"); return; }
-      playSFX("sfx-search");
-      gameContainer.style.background = "#2b1810";
-      renderKitchen();
-      showScreen("kitchen-screen");
-    } else if (room === "living") {
-      if (state.livingDone) { showToast("ئەم ژوورەت تەواو کردووە!"); return; }
-      if (!state.hasRoundBox) {
-        state.hasRoundBox = true;
-        updateInventory();
-        playSFX("sfx-stumble");
-        showToast("قاچت لە بۆکسێکی خڕ هەڵکەوت و هەڵتگرت!");
+  function circleWord(el) {
+    const word = el.getAttribute('data-target');
+    const fb = document.getElementById('circleFeedback');
+    fb.classList.remove('hidden', 'ok', 'err');
+
+    if (targetWords.includes(word)) {
+      if (!circledWords.has(word)) {
+        playSFX('write');
+        el.classList.add('red-circle');
+        circledWords.add(word);
+      }
+      if (circledWords.size === targetWords.length) {
+        playSFX('paper');
+        fb.classList.add('ok');
+        fb.textContent = "هەر چوار وشە قورسەکەت بە بازنەی سوور دیاری کرد! ئێستا دەفتەرەکەت و پرسیارەکانی کرانەوە.";
+        document.getElementById('vocabSection').classList.remove('hidden');
+        renderVocabQuestion();
       } else {
-        playSFX("sfx-search");
+        fb.classList.add('ok');
+        fb.textContent = `بازنەی سوور کێشرا (${circledWords.size} لە ${targetWords.length} وشە).`;
       }
-      gameContainer.style.background = "#0f1f2e";
-      renderLiving();
-      showScreen("living-screen");
-    } else if (room === "hallway") {
-      if (state.hallwayDone && state.hasBlueKey) { showToast("هەموو شتێکی ڕاڕەوەکەت پشکنیوە!"); return; }
-      playSFX("sfx-search");
-      gameContainer.style.background = "#1d1226";
-      renderHallway();
-      showScreen("hallway-screen");
-    } else if (room === "bedroom") {
-      if (!state.hasBlueKey) {
-        playSFX("sfx-door");
-        showToast("🔒 دەرگای ژووری نووستن کلیلە! کلیلی شینی دەوێت.", true);
-        return;
-      }
-      playSFX("sfx-search");
-      gameContainer.style.background = "#0c241b";
-      renderBedroom();
-      showScreen("bedroom-screen");
-    }
-  }
-
-  function backToHub() {
-    playSFX("sfx-click");
-    document.getElementById("game-container").style.background = "radial-gradient(circle at center, #2c2117 0%, #120d09 100%)";
-    showScreen("hub-screen");
-  }
-
-  // --- چێشتخانە ---
-  function renderKitchen() {
-    const container = document.getElementById("kitchen-content");
-    container.innerHTML = `
-      <p>تۆ بەژوورەکەدا گەڕایت و ئەم شتانەت دۆزییەوە: تاکەکانی کەوانتەر بەتاڵن و تەنها قاپ و کەوچکیان تێدایە، بەڵام لە پشت ڕەسمەکەی سەر دیوارەکە قاسەیەکی کۆن هەیە!</p>
-      <div class="parchment" style="margin-top:10px;">
-        <h3 style="margin-top:0;">🔐 قاسە کۆنەکە</h3>
-        <div id="safe-q1">
-          <p class="arabic-text">وشەی یەکەم: « المباح »</p>
-          <button class="btn" onclick="checkSafeQ1('افضتم')">افضتم</button>
-          <button class="btn" onclick="checkSafeQ1('المسموح')">المسموح</button>
-          <button class="btn" onclick="checkSafeQ1('يستوجب')">يستوجب</button>
-        </div>
-        <div id="safe-q2" style="display:none;">
-          <p class="arabic-text">وشەی دووەم: « غامض »</p>
-          <button class="btn" onclick="checkSafeQ2('مطلسم')">مطلسم</button>
-          <button class="btn" onclick="checkSafeQ2('يقضى')">يقضى</button>
-          <button class="btn" onclick="checkSafeQ2('يفرض')">يفرض</button>
-        </div>
-      </div>
-      <div id="kitchen-thought-puzzle" style="display:none; width:100%;">
-        <div class="parchment">
-          <strong>📄 وەرەقەی ناو قاسەکە:</strong><br>
-          «خەڵک پێویستە دەربارەی ڕاستی داگیرکەر بزانێت و دەربارەی ئەنجامەکانیان!!! هەموو هەوڵێک ئەیەم تا ئاشکرای بکەم!»
-        </div>
-        <p style="color:#8cc0ff; font-size:1.05rem;">💭 بەستنەوەی بەڵگەکان (دوو هەوری ڕاست بەیەکەوە ببەستە):</p>
-        <div class="clouds-container">
-          <div class="thought-cloud" id="cloud-1" onclick="selectCloud(1)">☁️ ئەم شاعیرە باسی داگیرکەر ئەکات</div>
-          <div class="thought-cloud" id="cloud-2" onclick="selectCloud(2)">☁️ هانی داگیرکەر ئەدات</div>
-          <div class="thought-cloud" id="cloud-3" onclick="selectCloud(3)">☁️ لە دژی داگیرکەرە</div>
-          <div class="thought-cloud" id="cloud-4" onclick="selectCloud(4)">☁️ هەوڵی بردنی خێروبێری داگیرکراوەکان ئەدەن</div>
-        </div>
-      </div>
-    `;
-  }
-
-  function checkSafeQ1(ans) {
-    if (ans === "المسموح") {
-      playSFX("sfx-search");
-      updateScore(true);
-      showToast("ڕاستە! +١ خاڵ");
-      document.getElementById("safe-q1").style.display = "none";
-      document.getElementById("safe-q2").style.display = "block";
     } else {
-      updateScore(false);
-      showToast("هەڵەیە! -٢ خاڵ", true);
+      playSFX('incorrect');
+      const extra = penalizeWrong();
+      fb.classList.add('err');
+      fb.textContent = `ئەم وشەیە لە وشە قورسەکانی دیاریکراو نییە! -٢ خاڵ${extra}`;
     }
   }
 
-  function checkSafeQ2(ans) {
-    if (ans === "مطلسم") {
-      playSFX("sfx-search");
-      updateScore(true);
-      showToast("قاسەکە کرایەوە! +١ خاڵ");
-      document.getElementById("safe-q2").parentElement.style.display = "none";
-      document.getElementById("kitchen-thought-puzzle").style.display = "block";
-    } else {
-      updateScore(false);
-      showToast("هەڵەیە! -٢ خاڵ", true);
-    }
-  }
-
-  function selectCloud(id) {
-    playSFX("sfx-click");
-    const el = document.getElementById("cloud-" + id);
-    if (state.cloudStage === 1) {
-      if (state.selectedClouds.includes(id)) {
-        state.selectedClouds = state.selectedClouds.filter(x => x !== id);
-        el.classList.remove("selected");
-        return;
-      }
-      state.selectedClouds.push(id);
-      el.classList.add("selected");
-
-      if (state.selectedClouds.length === 2) {
-        if (state.selectedClouds.includes(1) && state.selectedClouds.includes(3)) {
-          updateScore(true);
-          showToast("بەیەکەوە بەستنەکە ڕاستە! +١ خاڵ. ئێستا هەوری هۆکارەکە دیاری بکە...");
-          state.cloudStage = 2;
-          document.getElementById("cloud-1").style.opacity = "0.4";
-          document.getElementById("cloud-3").style.opacity = "0.4";
-          document.getElementById("cloud-1").classList.remove("selected");
-          document.getElementById("cloud-3").classList.remove("selected");
-        } else {
-          updateScore(false);
-          showToast("هەڵەیە! -٢ خاڵ", true);
-          state.selectedClouds.forEach(c => document.getElementById("cloud-" + c).classList.remove("selected"));
-          state.selectedClouds = [];
-        }
-      }
-    } else if (state.cloudStage === 2) {
-      if (id === 4) {
-        playSFX("sfx-search");
-        updateScore(true);
-        state.kitchenDone = true;
-        document.getElementById("card-kitchen").classList.add("done");
-        document.getElementById("status-kitchen").textContent = "✔️ تەواو کرا";
-        document.getElementById("status-kitchen").style.color = "#81c784";
-        showToast("تەواو بوو! +١ خاڵ");
-        setTimeout(() => backToHub(), 1100);
-      } else {
-        updateScore(false);
-        showToast("هەڵەیە! -٢ خاڵ", true);
-      }
-    }
-  }
-
-  // --- ژووری میوان ---
-  function renderLiving() {
-    const container = document.getElementById("living-content");
-    container.innerHTML = `
-      <p>تۆ بەژوورەکەدا گەڕایت و ئەم شتەت دۆزییەوە: بۆکسێکی خڕ کەوتە ناو جانتاکەت، و لە چەکمەجەی دووەمی مێزەکەدا ئەم وەرەقەیە هەبوو:</p>
-      <div class="parchment">
-        <p class="arabic-text">« ناموا ولا تستيقظوا .... ما فاز إلا النُّوم »</p>
-      </div>
-      <p style="font-size:1.1rem; color:var(--gold-light);">شاعیر هونەری شیعری بۆ چی بەکارهێناوە؟</p>
-      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
-        <button class="btn" style="width:90%; max-width:500px;" onclick="checkLivingAnswer('أ')">أ- طوع الفن الشعري للرومانسي</button>
-        <button class="btn" style="width:90%; max-width:500px;" onclick="checkLivingAnswer('ب')">ب- طوع الفن الشعري للواقعي والإجتماعية</button>
-        <button class="btn" style="width:90%; max-width:500px;" onclick="checkLivingAnswer('ج')">ج- طوع الفن الشعري للفكر السياسي والوجدان الوطني</button>
-      </div>
-    `;
-  }
-
-  function checkLivingAnswer(ans) {
-    if (ans === "ج") {
-      playSFX("sfx-search");
-      updateScore(true);
-      state.livingDone = true;
-      document.getElementById("card-living").classList.add("done");
-      document.getElementById("status-living").textContent = "✔️ تەواو کرا";
-      document.getElementById("status-living").style.color = "#81c784";
-      showToast("ڕاستە! +١ خاڵ");
-      setTimeout(() => backToHub(), 1100);
-    } else {
-      updateScore(false);
-      showToast("هەڵەیە! -٢ خاڵ", true);
-    }
-  }
-
-  // --- ڕاڕەوەکە ---
-  function renderHallway() {
-    state.hasGreenKey = true;
-    updateInventory();
-    const container = document.getElementById("hallway-content");
-    container.innerHTML = `
-      <p>تۆ بە ڕاڕەوەکەدا گەڕایت و ئەم شتانەت دۆزییەوە: لە گۆزەی سێیەمدا وەرەقەیەک و <strong>کلیلی سەوز 🗝️</strong> هەبوو!</p>
-      <div class="parchment">
-        <p class="arabic-text">« الإلتزام القومي والإنساني طابع شعري منه!! »</p>
-      </div>
-      <button id="open-round-btn" class="btn" onclick="openRoundBoxInHallway()">🟢 کردنەوەی بۆکسە خڕەکە بە کلیلی سەوز</button>
-      <div id="hallway-box-result" style="display:none; margin-top:12px;"></div>
-    `;
-  }
-
-  function openRoundBoxInHallway() {
-    if (!state.hasRoundBox) {
-      showToast("هێشتا بۆکسە خڕەکەت لە ژووری میوان هەڵنەگرتووە! سەرەتا بچۆ بۆ ژووری میوان.", true);
+  function renderVocabQuestion() {
+    const area = document.getElementById('vocabQuizArea');
+    if (currentVocabIdx >= vocabQuestions.length) {
+      area.innerHTML = `<div class="feedback ok">هەموو وشەکان لەسەر دەفتەرەکەت تۆمار کران!</div>
+        <button class="btn" onclick="goScene('scene4','scene5', true, 'transition')">بەردەوامبوون بەرەو پرسیاری کۆتایی</button>`;
       return;
     }
-    playSFX("sfx-search");
-    state.hasBlueKey = true;
-    updateInventory();
-    document.getElementById("open-round-btn").style.display = "none";
-    document.getElementById("hallway-box-result").style.display = "block";
-    document.getElementById("hallway-box-result").innerHTML = `
-      <div class="parchment" style="background:#e8f5e9; border-color:#2e7d32;">
-        <h3 style="margin-top:0; color:#1b5e20;">📦 بۆکسە خڕەکە کرایەوە!</h3>
-        <p>بەرهەمەکان و <strong>کلیلی شین 🔑</strong> دەرهێنران:</p>
-        <ul style="list-style:none; padding:0; font-weight:bold;">
-          <li>📕 ديوان الرصافي 1910 | 📗 الأناشيد الوطنية 1920</li>
-          <li>📘 نمو اللغة العامية العراقية | 📙 دروس في آداب اللغة العربية 1928</li>
-        </ul>
-      </div>
-    `;
-    state.hallwayDone = true;
-    document.getElementById("card-hallway").classList.add("done");
-    document.getElementById("status-hallway").textContent = "✔️ تەواو کرا";
-    document.getElementById("status-hallway").style.color = "#81c784";
-    document.getElementById("status-bedroom").textContent = "🔓 ئێستا دەتوانیت بچیتە ژوورەوە!";
-    document.getElementById("status-bedroom").style.color = "#81c784";
-    showToast("کلیلی شینت دەستکەوت!");
+    const q = vocabQuestions[currentVocabIdx];
+    let html = `<h3>وشەی (${currentVocabIdx + 1} لە 4): <span class="red-circle">${q.word}</span></h3>`;
+    q.options.forEach(opt => {
+      html += `<button class="option-btn" onclick="answerVocab('${opt.key}', this)">${opt.text}</button>`;
+    });
+    html += `<div id="vocabFb" class="feedback hidden"></div>`;
+    area.innerHTML = html;
   }
 
-  // --- ژووری نووستن ---
-  function renderBedroom() {
-    const container = document.getElementById("bedroom-content");
-    container.innerHTML = `
-      <p>تۆ بەژوورەکەدا گەڕایت و ئەم شتەت دۆزییەوە: چوویتە سەر کورسییەکە و بۆکسە گەورەکەی سەر دۆڵابەکەت هێنایە خوارەوە، ئەم قەسیدەیەی تێدا بوو:</p>
-      <div class="options-legend" style="margin: 0 auto 10px auto;">
-        <div><strong>أ-</strong> النوم وعدم الإستيقاظ</div>
-        <div><strong>ب-</strong> عدم الفهم</div>
-        <div><strong>ج-</strong> الجهل</div>
-        <div><strong>د-</strong> التأخر</div>
-        <div><strong>ح-</strong> ترك سياسة</div>
-        <div><strong>و-</strong> عدم كلام</div>
-        <div><strong>ي-</strong> عدم تحدث عما يزعج المستعمرين</div>
-        <div><strong>ز-</strong> دیاری نەکراو</div>
-      </div>
-      <table class="match-table" style="margin:0 auto;">
-        <tr><th>دێڕە شیعرەکە</th><th>مەبەست</th></tr>
-        <tr><td class="arabic-text">يا قـــومُ لا تتكلموا .. إن الكلامَ محرَّمُ</td><td><select class="match-select" id="m1"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
-        <tr><td class="arabic-text">ناموا ولا تستيقظوا .. ما فاز إلا النُوم</td><td><select class="match-select" id="m2"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
-        <tr><td class="arabic-text">وتأخروا عن كل ما .. يقضي بأن تتقدّموا</td><td><select class="match-select" id="m3"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
-        <tr><td class="arabic-text">ودَعوا التفهم جانبا .. فالخيرُ ألاَّ تفهموا</td><td><select class="match-select" id="m4"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
-        <tr><td class="arabic-text">وتثبتوا في جهلكم .. فالشرَ أن تتعلموا</td><td><select class="match-select" id="m5"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
-        <tr><td class="arabic-text">أما السياسة فاتركوا .. أبداً وإلا تندموا</td><td><select class="match-select" id="m6"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
-        <tr><td class="arabic-text">إن السياسة سرها .. لو تعلمون مُطلسم</td><td><select class="match-select" id="m7"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
-        <tr><td class="arabic-text">وإذا أفضتم في المباح .. من الحديث فجمجموا</td><td><select class="match-select" id="m8"><option value="">--</option><option value="أ">أ</option><option value="ب">ب</option><option value="ج">ج</option><option value="د">د</option><option value="ح">ح</option><option value="و">و</option><option value="ي">ي</option><option value="ز">ز</option></select></td></tr>
-      </table>
-      <button class="btn" style="margin-top:10px;" onclick="verifyPoemMatching()">پشکنینی گەیاندنەکان ✔️</button>
-      <div id="final-notebook-section" style="display:none; margin-top:12px;"></div>
-    `;
-  }
-
-  function verifyPoemMatching() {
-    const answers = { m1: "و", m2: "أ", m3: "د", m4: "ب", m5: "ج", m6: "ح", m7: "ز", m8: "ي" };
-    let allCorrect = true;
-    for (let key in answers) {
-      if (document.getElementById(key).value !== answers[key]) { allCorrect = false; break; }
+  function answerVocab(choice, btn) {
+    playSFX('select');
+    const q = vocabQuestions[currentVocabIdx];
+    const fb = document.getElementById('vocabFb');
+    fb.classList.remove('hidden', 'ok', 'err');
+    if (choice === q.correct) {
+      playSFX('correct');
+      btn.classList.add('correct');
+      const pts = awardCorrect();
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${q.word}:</strong> ${q.meaning}`;
+      document.getElementById('notebookList').appendChild(li);
+      fb.classList.add('ok');
+      fb.textContent = `ڕاستە! وشەکە لە دەفتەرەکەتدا نووسرایەوە. (+${pts} خاڵ)`;
+      currentVocabIdx++;
+      setTimeout(renderVocabQuestion, 1000);
+    } else {
+      playSFX('incorrect');
+      btn.classList.add('wrong');
+      const extra = penalizeWrong();
+      fb.classList.add('err');
+      fb.textContent = `هەڵەیە! دووبارە هەوڵبدەرەوە. -٢ خاڵ${extra}`;
     }
-    if (allCorrect) {
-      playSFX("sfx-search");
-      updateScore(true);
-      showToast("گەیاندنەکان ڕاستن! +١ خاڵ");
-      document.getElementById("final-notebook-section").style.display = "block";
-      document.getElementById("final-notebook-section").innerHTML = `
-        <div class="parchment">
-          <h3 style="margin-top:0;">📓 نۆتەی لێکۆڵەر</h3>
-          <div id="final-q1">
-            <p style="font-weight:bold;">پرسیاری یەکەم: شاعیر ناوی چییە؟</p>
-            <button class="btn" onclick="checkFinalQ1('أ')">أ- ناظم حكمت</button>
-            <button class="btn" onclick="checkFinalQ1('ب')">ب- جميل بن معمر</button>
-            <button class="btn" onclick="checkFinalQ1('ج')">ج- معروف الرصافي</button>
-            <button class="btn" onclick="checkFinalQ1('د')">د- سلمى</button>
-          </div>
-          <div id="final-q2" style="display:none;">
-            <p style="font-weight:bold;">پرسیاری دووەم: شاعیر خەڵکی کوێیە؟</p>
-            <button class="btn" onclick="checkFinalQ2('أ')">أ- تركيا</button>
-            <button class="btn" onclick="checkFinalQ2('ب')">ب- بغداد</button>
-            <button class="btn" onclick="checkFinalQ2('ج')">ج- لبنان</button>
-            <button class="btn" onclick="checkFinalQ2('د')">د- ايران</button></div>
-        </div>
+  }
+
+  function checkFinalCountry(choice, btn) {
+    playSFX('select');
+    const fb = document.getElementById('finalFeedback');
+    fb.classList.remove('hidden', 'ok', 'err');
+    if (choice === 'ب') {
+      playSFX('correct');
+      btn.classList.add('correct');
+      const pts = awardCorrect();
+      clearInterval(mainInterval);
+      let timePenaltyText = "نەخێر (کەمتر لە ٣ خولەک تەواوت کرد)";
+      if (totalSeconds > 180) {
+        score -= 2;
+        timePenaltyText = "بەڵێ (-٢ خاڵ بەهۆی تێپەڕبوونی ٣ خولەک)";
+      }
+      updateHUD();
+      const existingIdx = rankings.findIndex(r => r.name === detectiveName);
+      const entry = { name: detectiveName, score: score, time: totalSeconds };
+      if (existingIdx >= 0) rankings[existingIdx] = entry;
+      else rankings.push(entry);
+
+      fb.classList.add('ok');
+      fb.textContent = `وەڵامی ڕاستە: مصر (+${pts} خاڵ)`;
+      document.getElementById('finalReport').innerHTML = `
+        <strong>ئەنجامی کۆتایی قۆناغی یەکەم — لێکۆڵەر ${detectiveName}:</strong><br>
+        • کاتی گشتی: <strong>${formatTime(totalSeconds)}</strong><br>
+        • کۆی هەڵەکان: <strong>${mistakes}</strong><br>
+        • سزای تێپەڕبوونی ٣ خولەک: <strong>${timePenaltyText}</strong><br>
+        • کۆی خاڵی کۆتایی: <strong>${score} خاڵ</strong>
       `;
+      setTimeout(() => goScene('scene5', 'scene6', false, 'transition'), 1200);
     } else {
-      updateScore(false);
-      showToast("هەڵە لە گەیاندنەکاندا هەیە! -٢ خاڵ", true);
+      playSFX('incorrect');
+      btn.classList.add('wrong');
+      const extra = penalizeWrong();
+      fb.classList.add('err');
+      fb.textContent = `هەڵەیە! سەیری نەخشەی دەوروبەری لبنان بکە. -٢ خاڵ${extra}`;
     }
-  }
-
-  function checkFinalQ1(ans) {
-    if (ans === "ج") {
-      playSFX("sfx-search");
-      updateScore(true);
-      showToast("ڕاستە! معروف الرصافي (+١ خاڵ)");
-      document.getElementById("final-q1").style.display = "none";
-      document.getElementById("final-q2").style.display = "block";
-    } else {
-      updateScore(false);
-      showToast("هەڵەیە! -٢ خاڵ", true);
-    }
-  }
-
-  function checkFinalQ2(ans) {
-    if (ans === "ب") {
-      playSFX("sfx-search");
-      updateScore(true);
-      clearInterval(state.timerInterval);
-      
-      let m = Math.floor(state.secondsElapsed / 60);
-      let s = state.secondsElapsed % 60;
-      let timeStr = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-
-      saveScoreToLeaderboard(state.playerName, state.score, timeStr, state.secondsElapsed);
-
-      document.getElementById("win-player-name").textContent = state.playerName;
-      document.getElementById("final-score-display").textContent = state.score;
-      document.getElementById("final-time-display").textContent = timeStr;
-      document.getElementById("hud").style.display = "none";
-      document.getElementById("top-icons-start").style.display = "flex";
-      document.getElementById("game-container").style.background = "radial-gradient(circle at center, #2c2117 0%, #120d09 100%)";
-      showScreen("win-screen");
-    } else {
-      updateScore(false);
-      showToast("هەڵەیە! -٢ خاڵ", true);
-    }
-  }
-
-  // --- سیستەمی ڕانکینگ ---
-  function saveScoreToLeaderboard(name, score, timeStr, rawSeconds) {
-    let records = JSON.parse(localStorage.getItem("detector_ranking") || "[]");
-    records.push({ name, score, timeStr, rawSeconds });
-    records.sort((a, b) => {
-      if (b.score !== a.score) return b.score - a.score;
-      return a.rawSeconds - b.rawSeconds;
-    });
-    if (records.length > 10) records = records.slice(0, 10);
-    localStorage.setItem("detector_ranking", JSON.stringify(records));
-  }
-
-  function openModal(modalId) {
-    playSFX("sfx-click");
-    if(modalId === 'ranking-modal') {
-      let records = JSON.parse(localStorage.getItem("detector_ranking") || "[]");
-      const tbody = document.getElementById("ranking-body");
-      tbody.innerHTML = "";
-      
-      if (records.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="color:#aaa;">هێشتا هیچ تۆمارێک نییە!</td></tr>`;
-      } else {
-        records.forEach((rec, idx) => {
-          let rankClass = "";
-          let medal = (idx + 1);
-          if (idx === 0) { rankClass = "rank-1"; medal = "🥇 گۆڵد"; }
-          else if (idx === 1) { rankClass = "rank-2"; medal = "🥈 سلڤەر"; }
-          else if (idx === 2) { rankClass = "rank-3"; medal = "🥉 برۆنز"; }
-
-          tbody.innerHTML += `
-            <tr class="${rankClass}">
-              <td>${medal}</td>
-              <td>${rec.name}</td>
-              <td>⭐ ${rec.score}</td>
-              <td>⏱️ ${rec.timeStr}</td>
-            </tr>
-          `;
-        });
-      }
-    } else if(modalId === 'setting-modal') {
-      document.getElementById("teacher-code-input").value = "";
-      document.getElementById("setting-login-box").style.display = "block";
-      document.getElementById("setting-admin-box").style.display = "none";
-    }
-    document.getElementById(modalId).style.display = "flex";
-  }
-
-  function closeModal(modalId) {
-    playSFX("sfx-click");
-    document.getElementById(modalId).style.display = "none";
-  }
-
-  function verifyTeacherCode() {
-    const code = document.getElementById("teacher-code-input").value.trim();
-    if(code === "83830813") {
-      playSFX("sfx-search");
-      showToast("کۆدەکە ڕاستە!");
-      document.getElementById("setting-login-box").style.display = "none";
-      document.getElementById("setting-admin-box").style.display = "block";
-      document.getElementById("music-url-input").value = localStorage.getItem("custom_game_music") || "";
-    } else {
-      playSFX("sfx-stumble");
-      showToast("کۆدەکە هەڵەیە!", true);
-    }
-  }
-
-  function updateMusicSource() {
-    const newUrl = document.getElementById("music-url-input").value.trim();
-    if (!newUrl) {
-      localStorage.removeItem("custom_game_music");
-      useCustomAudioFile = false;
-      const musicElem = document.getElementById("bg-music");
-      musicElem.pause();
-      musicElem.src = "";
-      runSynthMusic();
-      playSFX("sfx-search");
-      showToast("گەڕایەوە سەر مۆسیقای بنەڕەتی یارییەکە!");
-      closeModal('setting-modal');
-      return;
-    }
-
-    localStorage.setItem("custom_game_music", newUrl);
-    useCustomAudioFile = true;
-    if (bgSynthTimer) clearInterval(bgSynthTimer);
-
-    const musicElem = document.getElementById("bg-music");
-    musicElem.src = newUrl;
-    musicElem.load();
-    musicElem.play().then(() => {
-      musicPlaying = true;
-      updateMusicButton();
-    }).catch(() => {
-      useCustomAudioFile = false;
-      runSynthMusic();
-      showToast("نەتوانرا فایلە دەرەکییەکە لێبدرێت، مۆسیقای بنەڕەتی بەکارهاتەوە.", true);
-    });
-
-    playSFX("sfx-search");
-    showToast("مۆسیقا بە سەرکەوتوویی گۆڕدرا بۆ هەموو قوتابییەکان!");
-    closeModal('setting-modal');
   }
 </script>
 </body>
